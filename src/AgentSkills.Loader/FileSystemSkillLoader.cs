@@ -379,7 +379,7 @@ public sealed class FileSystemSkillLoader : ISkillLoader
             var knownFields = new HashSet<string> { "name", "description", "version", "author", "tags", "allowed-tools" };
             var additionalFields = yamlObject
                 .Where(kvp => !knownFields.Contains(kvp.Key))
-                .ToDictionary<KeyValuePair<string, object>, string, object?>(kvp => kvp.Key, kvp => kvp.Value);
+                .ToDictionary(kvp => kvp.Key, kvp => (object?)kvp.Value);
 
             var manifest = new SkillManifest
             {
