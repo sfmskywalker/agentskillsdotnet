@@ -44,7 +44,7 @@ Everything after the closing --- is preserved verbatim.
 3. If parts.Length < 3, emit `LOADER004` error (frontmatter not found)
 4. Extract frontmatter (part 1) and body (parts 2+, joined by `---`)
 5. Parse YAML into dictionary, then map to `SkillManifest`
-6. Preserve body verbatim (including any `---` that appear in markdown)
+6. Preserve body content (after trimming leading/trailing whitespace, including any `---` that appear in markdown)
 
 #### Metadata-Only Loading (Fast Path)
 1. Open file as stream, read line-by-line
