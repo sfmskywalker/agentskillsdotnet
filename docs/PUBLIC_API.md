@@ -107,7 +107,66 @@ Represents the result of validating a skill, containing diagnostics.
 
 ## AgentSkills.Loader
 
-*Coming soon*
+The loader package provides functionality for discovering and loading skills from the file system.
+
+### Interfaces
+
+#### `ISkillLoader`
+Interface for loading skills from storage.
+
+**Methods:**
+- `SkillSet LoadSkillSet(string directoryPath)` - Loads a complete skill set from a directory, including all skill content. Returns a SkillSet with loaded skills and diagnostics.
+- `(IReadOnlyList<SkillMetadata> Metadata, IReadOnlyList<SkillDiagnostic> Diagnostics) LoadMetadata(string directoryPath)` - Loads only metadata for skills in a directory (fast path, does not load full content). Returns metadata collection and diagnostics.
+- `(Skill? Skill, IReadOnlyList<SkillDiagnostic> Diagnostics) LoadSkill(string skillDirectoryPath)` - Loads a single skill from a directory. Returns the loaded skill and diagnostics, or null if loading failed.
+
+### Implementations
+
+#### `FileSystemSkillLoader`
+Default implementation of `ISkillLoader` that loads skills from the file system.
+
+**Features:**
+- Scans directories recursively for `SKILL.md` files
+- Parses YAML frontmatter and Markdown body
+- Supports metadata-only loading (fast path)
+- Validates required fields (name, description)
+- Collects diagnostics for all errors and warnings
+- Preserves unknown YAML fields in `AdditionalFields`
+- Handles file system errors gracefully
+
+**Usage:**
+```csharp
+var loader = new FileSystemSkillLoader();
+
+// Load metadata only (fast)
+var (metadata, diagnostics) = loader.LoadMetadata("/path/to/skills");
+
+// Load full skill set
+var skillSet = loader.LoadSkillSet("/path/to/skills");
+
+// Load single skill
+var (skill, diagnostics) = loader.LoadSkill("/path/to/skills/my-skill");
+```
+
+**Dependencies:**
+- YamlDotNet 16.2.0 - YAML parsing library
+
+**Diagnostic Codes:**
+- `LOADER001` - Directory not found
+- `LOADER002` - SKILL.md not found in directory
+- `LOADER003` - Failed to read skill file (I/O error)
+- `LOADER004` - YAML frontmatter not found or malformed
+- `LOADER005` - Failed to parse YAML
+- `LOADER006` - Required field 'name' is missing or invalid
+- `LOADER007` - Required field 'description' is missing or invalid
+
+### Design Principles
+
+1. **Progressive Disclosure**: `LoadMetadata` reads only YAML frontmatter for fast skill listing. `LoadSkillSet` reads full content.
+2. **Diagnostics Over Exceptions**: I/O errors for truly exceptional cases only. Validation failures produce diagnostics.
+3. **Non-Destructive**: Invalid skills do not prevent loading of valid skills. All diagnostics are collected and returned.
+4. **Host-Agnostic**: No dependencies on specific agent frameworks or platforms.
+
+---
 
 ## AgentSkills.Validation
 
