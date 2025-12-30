@@ -1,4 +1,4 @@
-﻿// AgentSkills.NET Sample Application
+// AgentSkills.NET Sample Application
 // This is a walking skeleton that demonstrates:
 // scan → metadata → validate → render list → activate skill → render instructions
 
