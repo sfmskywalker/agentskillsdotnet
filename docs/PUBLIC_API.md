@@ -211,7 +211,117 @@ The markdown body content goes here...
 
 ## AgentSkills.Validation
 
-*Coming soon*
+The validation package provides validation rules and interfaces for validating skills against the Agent Skills v1 specification.
+
+### Interfaces
+
+#### `ISkillValidator`
+Interface for validating skills and producing diagnostics.
+
+**Methods:**
+- `ValidationResult Validate(Skill skill)` - Validates a full skill against the v1 specification. Returns a ValidationResult containing diagnostics.
+- `ValidationResult ValidateMetadata(SkillMetadata metadata)` - Validates skill metadata against the v1 specification. This is a lighter validation for metadata-only scenarios.
+
+### Implementations
+
+#### `SkillValidator`
+Default implementation of `ISkillValidator` that validates skills against the Agent Skills v1 specification.
+
+**Validation Rules:**
+
+Based on the [Agent Skills v1 specification](https://agentskills.io/specification):
+
+1. **Name Field (Required)**
+   - Must be present and non-empty
+   - Length: 1-64 characters
+   - Pattern: lowercase letters (a-z), numbers (0-9), and hyphens only
+   - Cannot start or end with a hyphen
+   - Cannot contain consecutive hyphens (`--`)
+   - Must match the parent directory name exactly
+
+2. **Description Field (Required)**
+   - Must be present and non-empty
+   - Length: 1-1024 characters
+   - Warning if less than 20 characters (recommended to be descriptive)
+
+3. **Version Field (Optional)**
+   - If present, should not be empty or whitespace-only
+
+4. **Compatibility Field (Optional)**
+   - If present, maximum 500 characters
+
+5. **Directory Name**
+   - Must match the skill name exactly
+
+**Usage:**
+```csharp
+var validator = new SkillValidator();
+
+// Validate a full skill
+var skill = loader.LoadSkill("/path/to/skill");
+var result = validator.Validate(skill);
+
+if (!result.IsValid)
+{
+    foreach (var error in result.Errors)
+    {
+        Console.WriteLine($"{error.Code}: {error.Message}");
+    }
+}
+
+// Validate metadata only (lighter validation)
+var (metadata, _) = loader.LoadMetadata("/path/to/skills");
+foreach (var meta in metadata)
+{
+    var result = validator.ValidateMetadata(meta);
+    // Process diagnostics...
+}
+```
+
+**Diagnostic Codes:**
+- `VAL001` - Required field 'name' is missing or empty
+- `VAL002` - Field 'name' length constraint violation (1-64 characters)
+- `VAL003` - Field 'name' pattern violation (lowercase, numbers, hyphens only; no leading/trailing/consecutive hyphens)
+- `VAL004` - Required field 'description' is missing or empty
+- `VAL005` - Field 'description' length constraint violation (1-1024 characters)
+- `VAL006` - Field 'description' is very short (warning, less than 20 characters)
+- `VAL007` - Field 'version' is present but empty (warning)
+- `VAL008` - Field 'compatibility' exceeds maximum length (500 characters)
+- `VAL009` - Cannot determine directory name to validate against skill name (warning)
+- `VAL010` - Directory name does not match skill name
+
+**CI/CD Integration:**
+
+The validator produces structured diagnostics that can be easily consumed by CI/CD pipelines:
+
+```csharp
+// Example: Exit code based on validation
+var result = validator.Validate(skill);
+if (!result.IsValid)
+{
+    foreach (var error in result.Errors)
+    {
+        Console.Error.WriteLine($"::error file={error.Path}::{error.Code}: {error.Message}");
+    }
+    Environment.Exit(1);
+}
+
+// Example: Show warnings
+foreach (var warning in result.Warnings)
+{
+    Console.WriteLine($"::warning file={warning.Path}::{warning.Code}: {warning.Message}");
+}
+```
+
+**Design Principles:**
+
+1. **Specification Compliance**: All validation rules match the Agent Skills v1 specification exactly.
+2. **Actionable Diagnostics**: Every diagnostic includes a code, message, and file path for easy debugging.
+3. **CI-Friendly**: Diagnostics include all information needed for automated checks (codes, paths, clear messages).
+4. **No Exceptions**: Validation produces diagnostics, never throws for validation failures.
+5. **Extensible**: Additional validation rules can be added without breaking existing code.
+
+---
 
 ## AgentSkills.Prompts
 

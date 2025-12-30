@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\AgentSkills\AgentSkills.csproj" />
     <ProjectReference Include="..\..\src\AgentSkills.Loader\AgentSkills.Loader.csproj" />
+    <ProjectReference Include="..\..\src\AgentSkills.Validation\AgentSkills.Validation.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

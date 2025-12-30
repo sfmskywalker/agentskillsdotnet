@@ -9,4 +9,8 @@
     <Description>Validation rules and diagnostics interfaces for AgentSkills.NET (no exceptions for normal validation errors).</Description>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\AgentSkills\AgentSkills.csproj" />
+  </ItemGroup>
+
 </Project>
