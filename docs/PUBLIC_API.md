@@ -150,6 +150,47 @@ var (skill, diagnostics) = loader.LoadSkill("/path/to/skills/my-skill");
 **Dependencies:**
 - YamlDotNet 16.2.0 - YAML parsing library
 
+**SKILL.md Format:**
+
+The `FileSystemSkillLoader` expects SKILL.md files to follow this format:
+```markdown
+---
+name: skill-name
+description: A brief description
+version: 1.0.0
+author: Author Name
+tags:
+  - tag1
+  - tag2
+allowed-tools:
+  - tool1
+  - tool2
+---
+
+# Skill Instructions
+
+The markdown body content goes here...
+```
+
+**Parsing Behavior:**
+1. **Frontmatter Delimiters**: YAML frontmatter must be enclosed between `---` delimiters (start and end)
+2. **Required Fields**: `name` and `description` are required and must not be empty
+3. **Optional Fields**: All other fields are optional
+4. **Additional Fields**: Unknown YAML fields are preserved in `SkillManifest.AdditionalFields`
+5. **Markdown Body**: Everything after the closing `---` is preserved verbatim as instructions
+6. **Triple Dashes in Body**: `---` appearing in the markdown body are preserved as-is (not treated as delimiters)
+7. **Metadata-Only Load**: Uses streaming to read only the frontmatter section, never loading the full file content
+
+**Edge Cases Handled:**
+- Missing SKILL.md file → `LOADER002` error
+- No frontmatter delimiters → `LOADER004` error
+- Unclosed frontmatter (missing closing `---`) → `LOADER005` YAML parse error
+- Malformed YAML syntax → `LOADER005` error
+- Missing required fields → `LOADER006` or `LOADER007` error
+- Empty required field values → `LOADER006` or `LOADER007` error
+- File I/O errors → `LOADER003` error
+- Invalid skills do not prevent loading of valid skills
+
 **Diagnostic Codes:**
 - `LOADER001` - Directory not found
 - `LOADER002` - SKILL.md not found in directory
