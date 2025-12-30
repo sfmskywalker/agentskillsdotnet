@@ -9,4 +9,8 @@
     <Description>Prompt rendering abstractions for turning skills into agent-ready instructions.</Description>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\AgentSkills\AgentSkills.csproj" />
+  </ItemGroup>
+
 </Project>

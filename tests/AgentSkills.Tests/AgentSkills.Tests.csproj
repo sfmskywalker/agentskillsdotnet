@@ -24,6 +24,7 @@
     <ProjectReference Include="..\..\src\AgentSkills\AgentSkills.csproj" />
     <ProjectReference Include="..\..\src\AgentSkills.Loader\AgentSkills.Loader.csproj" />
     <ProjectReference Include="..\..\src\AgentSkills.Validation\AgentSkills.Validation.csproj" />
+    <ProjectReference Include="..\..\src\AgentSkills.Prompts\AgentSkills.Prompts.csproj" />
   </ItemGroup>
 
 </Project>
