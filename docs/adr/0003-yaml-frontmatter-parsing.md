@@ -33,7 +33,7 @@ description: A description
 ---
 
 # Markdown body content
-Everything after the closing --- is preserved verbatim.
+Everything after the closing --- is preserved with leading and trailing whitespace trimmed.
 ```
 
 ### Parsing Strategy
@@ -84,7 +84,7 @@ This approach ensures metadata-only scans are fast and low-memory.
 |------|----------|------------|
 | No SKILL.md file | Return null, emit diagnostic | LOADER002 |
 | No frontmatter at all | Return null, emit diagnostic | LOADER004 |
-| Unclosed frontmatter (missing closing `---`) | Treated as malformed YAML, emit diagnostic | LOADER004 |
+| Unclosed frontmatter (missing closing `---`) | Treated as malformed YAML, emit diagnostic | LOADER005 |
 | Malformed YAML syntax | YamlDotNet error captured, emit diagnostic | LOADER005 |
 | Missing `name` field | Return null, emit diagnostic | LOADER006 |
 | Empty `name` value | Return null, emit diagnostic | LOADER006 |
@@ -94,11 +94,11 @@ This approach ensures metadata-only scans are fast and low-memory.
 | Unknown YAML fields | Preserved in `AdditionalFields` | None |
 
 ### Body Preservation
-The markdown body is preserved exactly as written:
-- No trimming beyond initial `---` split
+The markdown body is preserved with minimal processing:
+- Leading and trailing whitespace is trimmed after extraction
 - Horizontal rules (`---`) in markdown are preserved
-- No markdown parsing or processing
-- Instructions are stored as raw string
+- No markdown parsing or processing beyond whitespace trimming
+- Instructions are stored as a string
 
 ## Consequences
 

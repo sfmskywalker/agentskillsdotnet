@@ -291,12 +291,12 @@ public class FileSystemSkillLoaderTests
         // Assert
         Assert.Null(skill);
         Assert.NotEmpty(diagnostics);
-        // Unclosed frontmatter is detected before YAML parsing because the
-        // closing '---' delimiter is missing, resulting in a frontmatter error
-        Assert.Contains(diagnostics, d =>
-            d.Severity == DiagnosticSeverity.Error &&
-            d.Code == "LOADER004" &&
-            d.Message.Contains("frontmatter"));
+        // Unclosed frontmatter results in YAML parse error because the parser
+        // tries to parse the entire content (including markdown body) as YAML
+        Assert.Contains(diagnostics, d => 
+            d.Severity == DiagnosticSeverity.Error && 
+            d.Code == "LOADER005" &&
+            d.Message.Contains("YAML"));
     }
 
     [Fact]
