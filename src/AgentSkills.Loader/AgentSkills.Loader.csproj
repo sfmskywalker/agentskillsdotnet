@@ -9,4 +9,12 @@
     <Description>Skill discovery and loading interfaces and helpers for AgentSkills.NET.</Description>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\AgentSkills\AgentSkills.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="YamlDotNet" Version="16.2.0" />
+  </ItemGroup>
+
 </Project>

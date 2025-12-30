@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\AgentSkills\AgentSkills.csproj" />
+    <ProjectReference Include="..\..\src\AgentSkills.Loader\AgentSkills.Loader.csproj" />
   </ItemGroup>
 
 </Project>
