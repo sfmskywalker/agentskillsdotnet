@@ -84,7 +84,7 @@ This approach ensures metadata-only scans are fast and low-memory.
 |------|----------|------------|
 | No SKILL.md file | Return null, emit diagnostic | LOADER002 |
 | No frontmatter at all | Return null, emit diagnostic | LOADER004 |
-| Unclosed frontmatter (missing closing `---`) | Treated as malformed YAML, emit diagnostic | LOADER005 |
+| Unclosed frontmatter (missing closing `---`) | Treated as malformed YAML, emit diagnostic | LOADER004 |
 | Malformed YAML syntax | YamlDotNet error captured, emit diagnostic | LOADER005 |
 | Missing `name` field | Return null, emit diagnostic | LOADER006 |
 | Empty `name` value | Return null, emit diagnostic | LOADER006 |
