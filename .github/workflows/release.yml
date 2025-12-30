@@ -2,7 +2,7 @@ name: Release
 
 on:
   release:
-    types: [published]
+    types: [ published ]
   workflow_dispatch:
     inputs:
       version:
@@ -13,33 +13,32 @@ on:
 jobs:
   build-and-pack:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '8.0.x'
-    
-    - name: Restore dependencies
-      run: dotnet restore
-    
-    - name: Build
-      run: dotnet build --no-restore --configuration Release
-    
-    - name: Test
-      run: dotnet test --no-build --configuration Release --verbosity normal
-    
-    - name: Pack
-      run: dotnet pack --no-build --configuration Release --output ./packages
-    
-    - name: Upload packages
-      uses: actions/upload-artifact@v4
-      with:
-        name: nuget-packages
-        path: ./packages/*.nupkg
-    
-    # Uncomment when ready to publish to NuGet
-    # - name: Publish to NuGet
-    #   run: dotnet nuget push ./packages/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Test
+        run: dotnet test --no-build --configuration Release --verbosity normal
+
+      - name: Pack
+        run: dotnet pack --no-build --configuration Release --output ./packages
+
+      - name: Upload packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-packages
+          path: ./packages/*.nupkg
+
+      - name: Publish to NuGet
+        run: dotnet nuget push ./packages/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
