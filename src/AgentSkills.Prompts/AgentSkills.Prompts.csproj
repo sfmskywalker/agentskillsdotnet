@@ -4,6 +4,9 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+
+    <PackageId>AgentSkills.Prompts</PackageId>
+    <Description>Prompt rendering abstractions for turning skills into agent-ready instructions.</Description>
   </PropertyGroup>
 
 </Project>

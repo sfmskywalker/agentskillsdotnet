@@ -4,6 +4,9 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+
+    <PackageId>AgentSkills</PackageId>
+    <Description>Core domain models and metadata types for the Agent Skills open standard.</Description>
   </PropertyGroup>
 
 </Project>
