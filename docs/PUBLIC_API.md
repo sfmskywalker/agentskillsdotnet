@@ -184,10 +184,10 @@ The markdown body content goes here...
 **Edge Cases Handled:**
 - Missing SKILL.md file → `LOADER002` error
 - No frontmatter delimiters → `LOADER004` error
-- Unclosed frontmatter (missing closing `---`) → `LOADER005` YAML parse error
+- Unclosed frontmatter (missing closing `---`) → `LOADER004` error
 - Malformed YAML syntax → `LOADER005` error
 - Missing required fields → `LOADER006` or `LOADER007` error
-- Empty required field values → `LOADER006` or `LOADER007` error
+- Empty required field values → `LOADER006` or `LOODER007` error
 - File I/O errors → `LOADER003` error
 - Invalid skills do not prevent loading of valid skills
 
