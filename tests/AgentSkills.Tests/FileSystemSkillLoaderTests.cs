@@ -260,4 +260,118 @@ public class FileSystemSkillLoaderTests
         // The example-skill doesn't have additional fields, so it should be empty
         Assert.NotNull(skill.Manifest.AdditionalFields);
     }
+
+    [Fact]
+    public void LoadSkill_WithMalformedYaml_ReturnsNullAndError()
+    {
+        // Arrange
+        var skillPath = Path.Combine(_fixturesPath, "malformed-yaml");
+
+        // Act
+        var (skill, diagnostics) = _loader.LoadSkill(skillPath);
+
+        // Assert
+        Assert.Null(skill);
+        Assert.NotEmpty(diagnostics);
+        Assert.Contains(diagnostics, d => 
+            d.Severity == DiagnosticSeverity.Error && 
+            d.Code == "LOADER005" &&
+            d.Message.Contains("YAML"));
+    }
+
+    [Fact]
+    public void LoadSkill_WithUnclosedFrontmatter_ReturnsNullAndError()
+    {
+        // Arrange
+        var skillPath = Path.Combine(_fixturesPath, "unclosed-frontmatter");
+
+        // Act
+        var (skill, diagnostics) = _loader.LoadSkill(skillPath);
+
+        // Assert
+        Assert.Null(skill);
+        Assert.NotEmpty(diagnostics);
+        // Unclosed frontmatter results in YAML parse error because the parser
+        // tries to parse the entire content (including markdown body) as YAML
+        Assert.Contains(diagnostics, d => 
+            d.Severity == DiagnosticSeverity.Error && 
+            d.Code == "LOADER005" &&
+            d.Message.Contains("YAML"));
+    }
+
+    [Fact]
+    public void LoadSkill_WithEmptyNameField_ReturnsNullAndError()
+    {
+        // Arrange
+        var skillPath = Path.Combine(_fixturesPath, "empty-name-field");
+
+        // Act
+        var (skill, diagnostics) = _loader.LoadSkill(skillPath);
+
+        // Assert
+        Assert.Null(skill);
+        Assert.NotEmpty(diagnostics);
+        Assert.Contains(diagnostics, d => 
+            d.Severity == DiagnosticSeverity.Error && 
+            d.Code == "LOADER006" &&
+            d.Message.Contains("name"));
+    }
+
+    [Fact]
+    public void LoadSkill_WithTripleDashInBody_PreservesBodyVerbatim()
+    {
+        // Arrange
+        var skillPath = Path.Combine(_fixturesPath, "triple-dash-in-body");
+
+        // Act
+        var (skill, diagnostics) = _loader.LoadSkill(skillPath);
+
+        // Assert
+        Assert.NotNull(skill);
+        Assert.Empty(diagnostics);
+        Assert.Equal("triple-dash-body", skill.Manifest.Name);
+        
+        // Verify that triple dashes in the body are preserved
+        Assert.Contains("---", skill.Instructions);
+        
+        // Verify the body contains the expected text
+        Assert.Contains("triple dashes that should not be confused with frontmatter", skill.Instructions);
+        Assert.Contains("This should all be preserved verbatim", skill.Instructions);
+    }
+
+    [Fact]
+    public void LoadMetadata_WithMalformedYaml_SkipsSkillAndCollectsDiagnostics()
+    {
+        // Act
+        var (metadata, diagnostics) = _loader.LoadMetadata(_fixturesPath);
+
+        // Assert
+        // Should not include malformed skill in metadata
+        Assert.DoesNotContain(metadata, m => m.Name == "malformed-skill");
+        
+        // Should have error diagnostic for malformed YAML
+        Assert.Contains(diagnostics, d => 
+            d.Severity == DiagnosticSeverity.Error && 
+            d.Code == "LOADER005");
+    }
+
+    [Fact]
+    public void LoadSkill_WithValidSkill_InstructionsDoNotContainFrontmatter()
+    {
+        // Arrange
+        var skillPath = Path.Combine(_fixturesPath, "example-skill");
+
+        // Act
+        var (skill, _) = _loader.LoadSkill(skillPath);
+
+        // Assert
+        Assert.NotNull(skill);
+        
+        // Instructions should not contain YAML frontmatter delimiters at the start
+        Assert.DoesNotContain("---\nname:", skill.Instructions);
+        Assert.DoesNotContain("description:", skill.Instructions);
+        
+        // Instructions should start with the markdown content
+        Assert.StartsWith("#", skill.Instructions.TrimStart());
+    }
 }
