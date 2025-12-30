@@ -5,10 +5,31 @@ namespace AgentSkills.Tests;
 public class SkillValidatorTests
 {
     private readonly SkillValidator _validator = new();
-    private readonly string _fixturesPath = Path.Combine(
-        Directory.GetCurrentDirectory(),
-        "..", "..", "..", "..", "..",
-        "fixtures", "skills");
+    private readonly string _fixturesPath;
+
+    // Test constants matching the validator's limits
+    private const int NameMaxLength = 64;
+    private const int DescriptionMaxLength = 1024;
+    private const int CompatibilityMaxLength = 500;
+
+    public SkillValidatorTests()
+    {
+        // Find the fixtures directory by searching upward from the test assembly location
+        var testDirectory = Directory.GetCurrentDirectory();
+        var current = new DirectoryInfo(testDirectory);
+        
+        while (current != null && !Directory.Exists(Path.Combine(current.FullName, "fixtures", "skills")))
+        {
+            current = current.Parent;
+        }
+
+        if (current == null)
+        {
+            throw new InvalidOperationException("Could not find fixtures/skills directory");
+        }
+
+        _fixturesPath = Path.Combine(current.FullName, "fixtures", "skills");
+    }
 
     [Fact]
     public void Validate_ValidSkill_ReturnsNoErrors()
@@ -130,7 +151,7 @@ public class SkillValidatorTests
     public void Validate_NameTooLong_ReturnsError()
     {
         // Arrange
-        var longName = new string('a', 65);
+        var longName = new string('a', NameMaxLength + 1);
         var skill = new Skill
         {
             Manifest = new SkillManifest
@@ -224,7 +245,7 @@ public class SkillValidatorTests
     public void Validate_DescriptionTooLong_ReturnsError()
     {
         // Arrange
-        var longDescription = new string('a', 1025);
+        var longDescription = new string('a', DescriptionMaxLength + 1);
         var skill = new Skill
         {
             Manifest = new SkillManifest
@@ -368,7 +389,7 @@ public class SkillValidatorTests
     public void Validate_CompatibilityTooLong_ReturnsError()
     {
         // Arrange
-        var longCompatibility = new string('a', 501);
+        var longCompatibility = new string('a', CompatibilityMaxLength + 1);
         var skill = new Skill
         {
             Manifest = new SkillManifest

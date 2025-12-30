@@ -69,7 +69,8 @@ public sealed partial class SkillValidator : ISkillValidator
         }
 
         // Validate compatibility field length if present
-        if (manifest.AdditionalFields.TryGetValue("compatibility", out var compatibilityValue) 
+        if (manifest.AdditionalFields != null 
+            && manifest.AdditionalFields.TryGetValue("compatibility", out var compatibilityValue) 
             && compatibilityValue is string compatibility)
         {
             ValidateCompatibility(compatibility, skillPath, diagnostics);
