@@ -20,9 +20,28 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageTags>agent;ai;skills;anthropic;llm</PackageTags>
+
+    <!-- Default packing behavior: libraries under src/ pack, samples/tests do not. -->
+    <_NormalizedProjectDir>$([System.String]::Copy('$(MSBuildProjectDirectory)').Replace('\\','/'))</_NormalizedProjectDir>
+    <IsPackable Condition="'$(IsPackable)' == '' and $([System.String]::Copy('$(_NormalizedProjectDir)').Contains('/src/'))">true</IsPackable>
+    <IsPackable Condition="'$(IsPackable)' == '' and $([System.String]::Copy('$(_NormalizedProjectDir)').Contains('/samples/'))">false</IsPackable>
+
+    <!-- NuGet / build reproducibility defaults for packable projects. -->
+    <PublishRepositoryUrl Condition="'$(IsPackable)' == 'true'">true</PublishRepositoryUrl>
+    <EmbedUntrackedSources Condition="'$(IsPackable)' == 'true'">true</EmbedUntrackedSources>
+    <IncludeSymbols Condition="'$(IsPackable)' == 'true'">true</IncludeSymbols>
+    <SymbolPackageFormat Condition="'$(IsPackable)' == 'true'">snupkg</SymbolPackageFormat>
+    <DebugType Condition="'$(IsPackable)' == 'true'">portable</DebugType>
+
+    <!-- Let CI set this via environment variable CI=true; keeps local builds fast. -->
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
   </PropertyGroup>
 
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="\" Condition="'$(IsPackable)' == 'true'" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(IsPackable)' == 'true'">
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
   </ItemGroup>
 </Project>
