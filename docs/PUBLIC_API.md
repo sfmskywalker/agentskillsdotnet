@@ -295,13 +295,14 @@ foreach (var meta in metadata)
 The validator produces structured diagnostics that can be easily consumed by CI/CD pipelines:
 
 ```csharp
-// Example: Exit code based on validation
+// Example: Exit code based on validation (using safe plain text output)
 var result = validator.Validate(skill);
 if (!result.IsValid)
 {
     foreach (var error in result.Errors)
     {
-        Console.Error.WriteLine($"::error file={error.Path}::{error.Code}: {error.Message}");
+        // Plain text format (safe for all CI systems)
+        Console.Error.WriteLine($"ERROR [{error.Code}] {error.Path}: {error.Message}");
     }
     Environment.Exit(1);
 }
@@ -309,9 +310,12 @@ if (!result.IsValid)
 // Example: Show warnings
 foreach (var warning in result.Warnings)
 {
-    Console.WriteLine($"::warning file={warning.Path}::{warning.Code}: {warning.Message}");
+    Console.WriteLine($"WARNING [{warning.Code}] {warning.Path}: {warning.Message}");
 }
 ```
+
+**Security Note for GitHub Actions:**
+If using GitHub Actions workflow commands (`::error`, `::warning`), you must escape user-controlled content to prevent workflow command injection. Paths and messages from skill files are untrusted input and should not be directly interpolated into workflow commands. Use plain text output (as shown above) or properly escape all fields before using workflow commands.
 
 **Design Principles:**
 

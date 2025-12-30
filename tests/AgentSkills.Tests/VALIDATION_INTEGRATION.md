@@ -21,21 +21,20 @@ if (!result.IsValid)
 {
     foreach (var error in result.Errors)
     {
-        // GitHub Actions format
-        Console.Error.WriteLine($"::error file={error.Path}::{error.Code}: {error.Message}");
-        
-        // Or generic format
-        Console.Error.WriteLine($"{error.Path}:{error.Code}: {error.Message}");
+        // Safe plain text format (works with all CI systems)
+        Console.Error.WriteLine($"ERROR [{error.Code}] {error.Path}: {error.Message}");
     }
     Environment.Exit(1);
 }
 
 foreach (var warning in result.Warnings)
 {
-    // GitHub Actions format
-    Console.WriteLine($"::warning file={warning.Path}::{warning.Code}: {warning.Message}");
+    Console.WriteLine($"WARNING [{warning.Code}] {warning.Path}: {warning.Message}");
 }
 ```
+
+**Security Note:**
+Paths and messages from skill files are untrusted input. If you need to use GitHub Actions workflow commands (`::error`, `::warning`), you must properly escape all user-controlled values to prevent workflow command injection. The plain text format shown above is recommended for all CI systems as it avoids this security risk.
 
 ### Running Validation in CI
 
