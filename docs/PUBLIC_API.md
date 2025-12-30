@@ -177,7 +177,7 @@ The markdown body content goes here...
 2. **Required Fields**: `name` and `description` are required and must not be empty
 3. **Optional Fields**: All other fields are optional
 4. **Additional Fields**: Unknown YAML fields are preserved in `SkillManifest.AdditionalFields`
-5. **Markdown Body**: Everything after the closing `---` is preserved verbatim as instructions
+5. **Markdown Body**: Everything after the closing `---` is preserved as instructions, with leading and trailing whitespace trimmed
 6. **Triple Dashes in Body**: `---` appearing in the markdown body are preserved as-is (not treated as delimiters)
 7. **Metadata-Only Load**: Uses streaming to read only the frontmatter section, never loading the full file content
 
