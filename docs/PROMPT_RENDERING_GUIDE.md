@@ -189,15 +189,23 @@ var options = new PromptRenderOptions
 
 ```csharp
 // Stage 1: Show list
-var metadata = loader.LoadMetadata(skillsPath);
+var (metadata, _) = loader.LoadMetadata(skillsPath);
 var listPrompt = renderer.RenderSkillList(metadata);
 await SendToLLM(listPrompt);
 
-// Wait for LLM to choose a skill
+// Wait for LLM to choose a skill (by name)
 var chosenSkillName = await GetLLMChoice();
 
-// Stage 2: Show full details
-var (skill, _) = loader.LoadSkill($"{skillsPath}/{chosenSkillName}");
+// Resolve the chosen skill against known metadata to avoid path traversal
+var chosenSkill = metadata
+    .FirstOrDefault(m => string.Equals(m.Name, chosenSkillName, StringComparison.OrdinalIgnoreCase));
+if (chosenSkill is null)
+{
+    throw new InvalidOperationException($"Unknown skill selected: {chosenSkillName}");
+}
+
+// Stage 2: Show full details using the trusted skill path
+var (skill, _) = loader.LoadSkill(chosenSkill.Path);
 if (skill != null)
 {
     var detailsPrompt = renderer.RenderSkillDetails(skill);

@@ -31,7 +31,7 @@ public class ProgressiveDisclosureIntegrationTests
         var renderer = new DefaultSkillPromptRenderer();
 
         // Act & Assert - Step 1: Load metadata (fast path)
-        var (metadata, metadataDiagnostics) = loader.LoadMetadata(_fixturesPath);
+        var (metadata, _) = loader.LoadMetadata(_fixturesPath);
         Assert.NotEmpty(metadata);
 
         // Step 2: Validate metadata
