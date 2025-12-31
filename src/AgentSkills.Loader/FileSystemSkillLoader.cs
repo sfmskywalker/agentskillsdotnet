@@ -27,18 +27,16 @@ public sealed class FileSystemSkillLoader : ISkillLoader
     /// <inheritdoc/>
     public SkillSet LoadSkillSet(string directoryPath)
     {
-        var skills = new List<Skill>();
-        var diagnostics = new List<SkillDiagnostic>();
+        List<Skill> skills = [];
+        List<SkillDiagnostic> diagnostics = [];
 
         if (!Directory.Exists(directoryPath))
         {
-            diagnostics.Add(new SkillDiagnostic
-            {
-                Severity = DiagnosticSeverity.Error,
-                Message = $"Directory not found: {directoryPath}",
-                Path = directoryPath,
-                Code = "LOADER001"
-            });
+            diagnostics.Add(CreateDiagnostic(
+                DiagnosticSeverity.Error,
+                $"Directory not found: {directoryPath}",
+                directoryPath,
+                "LOADER001"));
 
             return new SkillSet
             {
@@ -73,18 +71,16 @@ public sealed class FileSystemSkillLoader : ISkillLoader
     /// <inheritdoc/>
     public (IReadOnlyList<SkillMetadata> Metadata, IReadOnlyList<SkillDiagnostic> Diagnostics) LoadMetadata(string directoryPath)
     {
-        var metadataList = new List<SkillMetadata>();
-        var diagnostics = new List<SkillDiagnostic>();
+        List<SkillMetadata> metadataList = [];
+        List<SkillDiagnostic> diagnostics = [];
 
         if (!Directory.Exists(directoryPath))
         {
-            diagnostics.Add(new SkillDiagnostic
-            {
-                Severity = DiagnosticSeverity.Error,
-                Message = $"Directory not found: {directoryPath}",
-                Path = directoryPath,
-                Code = "LOADER001"
-            });
+            diagnostics.Add(CreateDiagnostic(
+                DiagnosticSeverity.Error,
+                $"Directory not found: {directoryPath}",
+                directoryPath,
+                "LOADER001"));
 
             return (metadataList, diagnostics);
         }
@@ -110,18 +106,16 @@ public sealed class FileSystemSkillLoader : ISkillLoader
     /// <inheritdoc/>
     public (Skill? Skill, IReadOnlyList<SkillDiagnostic> Diagnostics) LoadSkill(string skillDirectoryPath)
     {
-        var diagnostics = new List<SkillDiagnostic>();
+        List<SkillDiagnostic> diagnostics = [];
         var skillFilePath = Path.Combine(skillDirectoryPath, SkillFileName);
 
         if (!File.Exists(skillFilePath))
         {
-            diagnostics.Add(new SkillDiagnostic
-            {
-                Severity = DiagnosticSeverity.Error,
-                Message = $"SKILL.md not found in directory: {skillDirectoryPath}",
-                Path = skillDirectoryPath,
-                Code = "LOADER002"
-            });
+            diagnostics.Add(CreateDiagnostic(
+                DiagnosticSeverity.Error,
+                $"SKILL.md not found in directory: {skillDirectoryPath}",
+                skillDirectoryPath,
+                "LOADER002"));
 
             return (null, diagnostics);
         }
@@ -149,13 +143,11 @@ public sealed class FileSystemSkillLoader : ISkillLoader
         }
         catch (IOException ex)
         {
-            diagnostics.Add(new SkillDiagnostic
-            {
-                Severity = DiagnosticSeverity.Error,
-                Message = $"Failed to read skill file: {ex.Message}",
-                Path = skillFilePath,
-                Code = "LOADER003"
-            });
+            diagnostics.Add(CreateDiagnostic(
+                DiagnosticSeverity.Error,
+                $"Failed to read skill file: {ex.Message}",
+                skillFilePath,
+                "LOADER003"));
 
             return (null, diagnostics);
         }
@@ -163,18 +155,16 @@ public sealed class FileSystemSkillLoader : ISkillLoader
 
     private (SkillMetadata? Metadata, IReadOnlyList<SkillDiagnostic> Diagnostics) LoadSkillMetadata(string skillDirectoryPath)
     {
-        var diagnostics = new List<SkillDiagnostic>();
+        List<SkillDiagnostic> diagnostics = [];
         var skillFilePath = Path.Combine(skillDirectoryPath, SkillFileName);
 
         if (!File.Exists(skillFilePath))
         {
-            diagnostics.Add(new SkillDiagnostic
-            {
-                Severity = DiagnosticSeverity.Error,
-                Message = $"SKILL.md not found in directory: {skillDirectoryPath}",
-                Path = skillDirectoryPath,
-                Code = "LOADER002"
-            });
+            diagnostics.Add(CreateDiagnostic(
+                DiagnosticSeverity.Error,
+                $"SKILL.md not found in directory: {skillDirectoryPath}",
+                skillDirectoryPath,
+                "LOADER002"));
 
             return (null, diagnostics);
         }
@@ -185,13 +175,11 @@ public sealed class FileSystemSkillLoader : ISkillLoader
             var frontmatter = ExtractFrontmatter(skillFilePath);
             if (frontmatter == null)
             {
-                diagnostics.Add(new SkillDiagnostic
-                {
-                    Severity = DiagnosticSeverity.Error,
-                    Message = "YAML frontmatter not found or invalid",
-                    Path = skillFilePath,
-                    Code = "LOADER004"
-                });
+                diagnostics.Add(CreateDiagnostic(
+                    DiagnosticSeverity.Error,
+                    "YAML frontmatter not found or invalid",
+                    skillFilePath,
+                    "LOADER004"));
 
                 return (null, diagnostics);
             }
@@ -218,13 +206,11 @@ public sealed class FileSystemSkillLoader : ISkillLoader
         }
         catch (IOException ex)
         {
-            diagnostics.Add(new SkillDiagnostic
-            {
-                Severity = DiagnosticSeverity.Error,
-                Message = $"Failed to read skill file: {ex.Message}",
-                Path = skillFilePath,
-                Code = "LOADER003"
-            });
+            diagnostics.Add(CreateDiagnostic(
+                DiagnosticSeverity.Error,
+                $"Failed to read skill file: {ex.Message}",
+                skillFilePath,
+                "LOADER003"));
 
             return (null, diagnostics);
         }
@@ -239,11 +225,11 @@ public sealed class FileSystemSkillLoader : ISkillLoader
         catch (UnauthorizedAccessException)
         {
             // Return empty if we don't have access
-            return Array.Empty<string>();
+            return [];
         }
         catch (DirectoryNotFoundException)
         {
-            return Array.Empty<string>();
+            return [];
         }
     }
 
@@ -275,20 +261,18 @@ public sealed class FileSystemSkillLoader : ISkillLoader
     private (SkillManifest? Manifest, string? Instructions, IReadOnlyList<SkillDiagnostic> Diagnostics) ParseSkillFile(
         string content, string filePath)
     {
-        var diagnostics = new List<SkillDiagnostic>();
+        List<SkillDiagnostic> diagnostics = [];
 
         // Split frontmatter and body
-        var parts = content.Split(new[] { FrontmatterDelimiter }, StringSplitOptions.None);
+        var parts = content.Split([FrontmatterDelimiter], StringSplitOptions.None);
 
         if (parts.Length < 3)
         {
-            diagnostics.Add(new SkillDiagnostic
-            {
-                Severity = DiagnosticSeverity.Error,
-                Message = "Invalid SKILL.md format: YAML frontmatter not found or malformed",
-                Path = filePath,
-                Code = "LOADER004"
-            });
+            diagnostics.Add(CreateDiagnostic(
+                DiagnosticSeverity.Error,
+                "Invalid SKILL.md format: YAML frontmatter not found or malformed",
+                filePath,
+                "LOADER004"));
 
             return (null, null, diagnostics);
         }
@@ -305,7 +289,7 @@ public sealed class FileSystemSkillLoader : ISkillLoader
     private (SkillManifest? Manifest, IReadOnlyList<SkillDiagnostic> Diagnostics) ParseYamlFrontmatter(
         string yaml, string filePath)
     {
-        var diagnostics = new List<SkillDiagnostic>();
+        List<SkillDiagnostic> diagnostics = [];
 
         try
         {
@@ -313,13 +297,11 @@ public sealed class FileSystemSkillLoader : ISkillLoader
 
             if (yamlObject == null)
             {
-                diagnostics.Add(new SkillDiagnostic
-                {
-                    Severity = DiagnosticSeverity.Error,
-                    Message = "Failed to parse YAML frontmatter",
-                    Path = filePath,
-                    Code = "LOADER005"
-                });
+                diagnostics.Add(CreateDiagnostic(
+                    DiagnosticSeverity.Error,
+                    "Failed to parse YAML frontmatter",
+                    filePath,
+                    "LOADER005"));
 
                 return (null, diagnostics);
             }
@@ -332,13 +314,11 @@ public sealed class FileSystemSkillLoader : ISkillLoader
             }
             else
             {
-                diagnostics.Add(new SkillDiagnostic
-                {
-                    Severity = DiagnosticSeverity.Error,
-                    Message = "Required field 'name' is missing or invalid",
-                    Path = filePath,
-                    Code = "LOADER006"
-                });
+                diagnostics.Add(CreateDiagnostic(
+                    DiagnosticSeverity.Error,
+                    "Required field 'name' is missing or invalid",
+                    filePath,
+                    "LOADER006"));
             }
 
             string? description = null;
@@ -348,13 +328,11 @@ public sealed class FileSystemSkillLoader : ISkillLoader
             }
             else
             {
-                diagnostics.Add(new SkillDiagnostic
-                {
-                    Severity = DiagnosticSeverity.Error,
-                    Message = "Required field 'description' is missing or invalid",
-                    Path = filePath,
-                    Code = "LOADER007"
-                });
+                diagnostics.Add(CreateDiagnostic(
+                    DiagnosticSeverity.Error,
+                    "Required field 'description' is missing or invalid",
+                    filePath,
+                    "LOADER007"));
             }
 
             // If required fields are missing, return null
@@ -376,7 +354,7 @@ public sealed class FileSystemSkillLoader : ISkillLoader
             var allowedTools = ExtractStringList(yamlObject, "allowed-tools");
 
             // Extract additional fields (fields not in the standard set)
-            var knownFields = new HashSet<string> { "name", "description", "version", "author", "tags", "allowed-tools" };
+            HashSet<string> knownFields = ["name", "description", "version", "author", "tags", "allowed-tools"];
             var additionalFields = yamlObject
                 .Where(kvp => !knownFields.Contains(kvp.Key))
                 .ToDictionary(kvp => kvp.Key, kvp => (object?)kvp.Value);
@@ -396,13 +374,11 @@ public sealed class FileSystemSkillLoader : ISkillLoader
         }
         catch (YamlDotNet.Core.YamlException ex)
         {
-            diagnostics.Add(new SkillDiagnostic
-            {
-                Severity = DiagnosticSeverity.Error,
-                Message = $"Failed to parse YAML: {ex.Message}",
-                Path = filePath,
-                Code = "LOADER005"
-            });
+            diagnostics.Add(CreateDiagnostic(
+                DiagnosticSeverity.Error,
+                $"Failed to parse YAML: {ex.Message}",
+                filePath,
+                "LOADER005"));
 
             return (null, diagnostics);
         }
@@ -412,7 +388,7 @@ public sealed class FileSystemSkillLoader : ISkillLoader
     {
         if (!yamlObject.TryGetValue(key, out var value))
         {
-            return Array.Empty<string>();
+            return [];
         }
 
         if (value is List<object> list)
@@ -425,9 +401,25 @@ public sealed class FileSystemSkillLoader : ISkillLoader
 
         if (value is string str)
         {
-            return new[] { str };
+            return [str];
         }
 
-        return Array.Empty<string>();
+        return [];
     }
+
+    /// <summary>
+    /// Helper method to create a SkillDiagnostic with consistent formatting.
+    /// </summary>
+    private static SkillDiagnostic CreateDiagnostic(
+        DiagnosticSeverity severity,
+        string message,
+        string? path,
+        string code) =>
+        new()
+        {
+            Severity = severity,
+            Message = message,
+            Path = path,
+            Code = code
+        };
 }

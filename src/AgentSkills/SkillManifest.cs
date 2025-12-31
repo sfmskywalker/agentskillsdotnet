@@ -29,13 +29,13 @@ public sealed class SkillManifest
     /// <summary>
     /// Gets the tags associated with the skill.
     /// </summary>
-    public IReadOnlyList<string> Tags { get; init; } = Array.Empty<string>();
+    public IReadOnlyList<string> Tags { get; init; } = [];
 
     /// <summary>
     /// Gets the list of allowed tools that this skill may use.
     /// This is advisory only; hosts are responsible for enforcement.
     /// </summary>
-    public IReadOnlyList<string> AllowedTools { get; init; } = Array.Empty<string>();
+    public IReadOnlyList<string> AllowedTools { get; init; } = [];
 
     /// <summary>
     /// Gets additional fields that were present in the YAML frontmatter but not mapped to known properties.

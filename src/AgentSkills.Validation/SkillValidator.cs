@@ -22,7 +22,7 @@ public sealed partial class SkillValidator : ISkillValidator
     /// <inheritdoc/>
     public ValidationResult Validate(Skill skill)
     {
-        var diagnostics = new List<SkillDiagnostic>();
+        List<SkillDiagnostic> diagnostics = [];
 
         // Validate manifest fields
         ValidateManifest(skill.Manifest, skill.Path, diagnostics);
@@ -39,7 +39,7 @@ public sealed partial class SkillValidator : ISkillValidator
     /// <inheritdoc/>
     public ValidationResult ValidateMetadata(SkillMetadata metadata)
     {
-        var diagnostics = new List<SkillDiagnostic>();
+        List<SkillDiagnostic> diagnostics = [];
 
         // Validate name field
         ValidateName(metadata.Name, metadata.Path, diagnostics);
@@ -82,32 +82,28 @@ public sealed partial class SkillValidator : ISkillValidator
         // Check if name is null or whitespace (should be caught by loader, but double-check)
         if (string.IsNullOrWhiteSpace(name))
         {
-            diagnostics.Add(new SkillDiagnostic
-            {
-                Severity = DiagnosticSeverity.Error,
-                Message = "Required field 'name' is missing or empty",
-                Path = skillPath,
-                Code = "VAL001"
-            });
+            diagnostics.Add(CreateDiagnostic(
+                DiagnosticSeverity.Error,
+                "Required field 'name' is missing or empty",
+                skillPath,
+                "VAL001"));
             return;
         }
 
         // Check length constraints
         if (name.Length < NameMinLength || name.Length > NameMaxLength)
         {
-            diagnostics.Add(new SkillDiagnostic
-            {
-                Severity = DiagnosticSeverity.Error,
-                Message = $"Field 'name' must be {NameMinLength}-{NameMaxLength} characters (found: {name.Length})",
-                Path = skillPath,
-                Code = "VAL002"
-            });
+            diagnostics.Add(CreateDiagnostic(
+                DiagnosticSeverity.Error,
+                $"Field 'name' must be {NameMinLength}-{NameMaxLength} characters (found: {name.Length})",
+                skillPath,
+                "VAL002"));
         }
 
         // Check pattern: lowercase, numbers, hyphens only, no leading/trailing/consecutive hyphens
         if (!NamePattern().IsMatch(name))
         {
-            var reasons = new List<string>();
+            List<string> reasons = [];
 
             if (name.Any(char.IsUpper))
                 reasons.Add("contains uppercase letters");
@@ -118,15 +114,13 @@ public sealed partial class SkillValidator : ISkillValidator
             if (name.Any(c => !char.IsLetterOrDigit(c) && c != '-'))
                 reasons.Add("contains invalid characters");
 
-            var reasonText = reasons.Any() ? $" ({string.Join(", ", reasons)})" : "";
+            var reasonText = reasons.Count > 0 ? $" ({string.Join(", ", reasons)})" : "";
 
-            diagnostics.Add(new SkillDiagnostic
-            {
-                Severity = DiagnosticSeverity.Error,
-                Message = $"Field 'name' must contain only lowercase letters, numbers, and hyphens; cannot start/end with hyphen or have consecutive hyphens{reasonText}",
-                Path = skillPath,
-                Code = "VAL003"
-            });
+            diagnostics.Add(CreateDiagnostic(
+                DiagnosticSeverity.Error,
+                $"Field 'name' must contain only lowercase letters, numbers, and hyphens; cannot start/end with hyphen or have consecutive hyphens{reasonText}",
+                skillPath,
+                "VAL003"));
         }
     }
 
@@ -135,38 +129,32 @@ public sealed partial class SkillValidator : ISkillValidator
         // Check if description is null or whitespace
         if (string.IsNullOrWhiteSpace(description))
         {
-            diagnostics.Add(new SkillDiagnostic
-            {
-                Severity = DiagnosticSeverity.Error,
-                Message = "Required field 'description' is missing or empty",
-                Path = skillPath,
-                Code = "VAL004"
-            });
+            diagnostics.Add(CreateDiagnostic(
+                DiagnosticSeverity.Error,
+                "Required field 'description' is missing or empty",
+                skillPath,
+                "VAL004"));
             return;
         }
 
         // Check length constraints
         if (description.Length < DescriptionMinLength || description.Length > DescriptionMaxLength)
         {
-            diagnostics.Add(new SkillDiagnostic
-            {
-                Severity = DiagnosticSeverity.Error,
-                Message = $"Field 'description' must be {DescriptionMinLength}-{DescriptionMaxLength} characters (found: {description.Length})",
-                Path = skillPath,
-                Code = "VAL005"
-            });
+            diagnostics.Add(CreateDiagnostic(
+                DiagnosticSeverity.Error,
+                $"Field 'description' must be {DescriptionMinLength}-{DescriptionMaxLength} characters (found: {description.Length})",
+                skillPath,
+                "VAL005"));
         }
 
         // Warning if description is too short (recommended to be descriptive)
         if (description.Length < 20)
         {
-            diagnostics.Add(new SkillDiagnostic
-            {
-                Severity = DiagnosticSeverity.Warning,
-                Message = "Field 'description' is very short; consider adding more detail about when to use this skill",
-                Path = skillPath,
-                Code = "VAL006"
-            });
+            diagnostics.Add(CreateDiagnostic(
+                DiagnosticSeverity.Warning,
+                "Field 'description' is very short; consider adding more detail about when to use this skill",
+                skillPath,
+                "VAL006"));
         }
     }
 
@@ -175,13 +163,11 @@ public sealed partial class SkillValidator : ISkillValidator
         // Version is optional but should not be empty if provided
         if (string.IsNullOrWhiteSpace(version))
         {
-            diagnostics.Add(new SkillDiagnostic
-            {
-                Severity = DiagnosticSeverity.Warning,
-                Message = "Field 'version' is present but empty; consider removing it or providing a value",
-                Path = skillPath,
-                Code = "VAL007"
-            });
+            diagnostics.Add(CreateDiagnostic(
+                DiagnosticSeverity.Warning,
+                "Field 'version' is present but empty; consider removing it or providing a value",
+                skillPath,
+                "VAL007"));
         }
     }
 
@@ -189,13 +175,11 @@ public sealed partial class SkillValidator : ISkillValidator
     {
         if (compatibility.Length > CompatibilityMaxLength)
         {
-            diagnostics.Add(new SkillDiagnostic
-            {
-                Severity = DiagnosticSeverity.Error,
-                Message = $"Field 'compatibility' must not exceed {CompatibilityMaxLength} characters (found: {compatibility.Length})",
-                Path = skillPath,
-                Code = "VAL008"
-            });
+            diagnostics.Add(CreateDiagnostic(
+                DiagnosticSeverity.Error,
+                $"Field 'compatibility' must not exceed {CompatibilityMaxLength} characters (found: {compatibility.Length})",
+                skillPath,
+                "VAL008"));
         }
     }
 
@@ -206,25 +190,37 @@ public sealed partial class SkillValidator : ISkillValidator
         if (string.IsNullOrEmpty(directoryName))
         {
             // If we can't determine directory name, issue a warning
-            diagnostics.Add(new SkillDiagnostic
-            {
-                Severity = DiagnosticSeverity.Warning,
-                Message = "Cannot determine directory name to validate against skill name",
-                Path = skillPath,
-                Code = "VAL009"
-            });
+            diagnostics.Add(CreateDiagnostic(
+                DiagnosticSeverity.Warning,
+                "Cannot determine directory name to validate against skill name",
+                skillPath,
+                "VAL009"));
             return;
         }
 
         if (!string.Equals(directoryName, skillName, StringComparison.Ordinal))
         {
-            diagnostics.Add(new SkillDiagnostic
-            {
-                Severity = DiagnosticSeverity.Error,
-                Message = $"Directory name '{directoryName}' does not match skill name '{skillName}'",
-                Path = skillPath,
-                Code = "VAL010"
-            });
+            diagnostics.Add(CreateDiagnostic(
+                DiagnosticSeverity.Error,
+                $"Directory name '{directoryName}' does not match skill name '{skillName}'",
+                skillPath,
+                "VAL010"));
         }
     }
+
+    /// <summary>
+    /// Helper method to create a SkillDiagnostic with consistent formatting.
+    /// </summary>
+    private static SkillDiagnostic CreateDiagnostic(
+        DiagnosticSeverity severity,
+        string message,
+        string? path,
+        string code) =>
+        new()
+        {
+            Severity = severity,
+            Message = message,
+            Path = path,
+            Code = code
+        };
 }

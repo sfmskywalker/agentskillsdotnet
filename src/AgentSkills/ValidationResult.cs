@@ -8,7 +8,7 @@ public sealed class ValidationResult
     /// <summary>
     /// Gets the collection of diagnostics produced during validation.
     /// </summary>
-    public IReadOnlyList<SkillDiagnostic> Diagnostics { get; init; } = Array.Empty<SkillDiagnostic>();
+    public IReadOnlyList<SkillDiagnostic> Diagnostics { get; init; } = [];
 
     /// <summary>
     /// Gets a value indicating whether the validation succeeded (no errors).

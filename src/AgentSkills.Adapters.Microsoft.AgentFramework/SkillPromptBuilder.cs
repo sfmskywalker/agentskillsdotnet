@@ -10,7 +10,7 @@ using AgentSkills.Prompts;
 public sealed class SkillPromptBuilder
 {
     private readonly ISkillPromptRenderer _renderer;
-    private readonly List<SkillMetadata> _availableSkills = new();
+    private readonly List<SkillMetadata> _availableSkills = [];
     private string? _baseInstructions;
 
     /// <summary>
@@ -62,14 +62,14 @@ public sealed class SkillPromptBuilder
     /// <returns>The complete agent instructions as a string.</returns>
     public string Build(PromptRenderOptions? options = null)
     {
-        var parts = new List<string>();
+        List<string> parts = [];
 
         if (!string.IsNullOrWhiteSpace(_baseInstructions))
         {
             parts.Add(_baseInstructions.Trim());
         }
 
-        if (_availableSkills.Any())
+        if (_availableSkills.Count > 0)
         {
             var skillsPrompt = _renderer.RenderSkillList(_availableSkills, options);
             parts.Add(skillsPrompt.Trim());

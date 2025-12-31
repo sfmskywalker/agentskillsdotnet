@@ -24,7 +24,8 @@ public sealed class DefaultSkillPromptRenderer : ISkillPromptRenderer
         builder.AppendLine("The following skills are available. To use a skill, activate it by name.");
         builder.AppendLine();
 
-        var metadataList = metadata.ToList();
+        // Avoid unnecessary enumeration by using IReadOnlyList if available
+        var metadataList = metadata as IReadOnlyList<SkillMetadata> ?? metadata.ToList();
         if (metadataList.Count == 0)
         {
             builder.AppendLine("No skills available.");
@@ -50,7 +51,7 @@ public sealed class DefaultSkillPromptRenderer : ISkillPromptRenderer
                 builder.AppendLine();
             }
 
-            if (options.IncludeTags && meta.Tags.Any())
+            if (options.IncludeTags && meta.Tags.Count > 0)
             {
                 builder.AppendLine($"**Tags:** {string.Join(", ", meta.Tags)}");
                 builder.AppendLine();
@@ -88,7 +89,7 @@ public sealed class DefaultSkillPromptRenderer : ISkillPromptRenderer
             builder.AppendLine();
         }
 
-        if (options.IncludeTags && skill.Manifest.Tags.Any())
+        if (options.IncludeTags && skill.Manifest.Tags.Count > 0)
         {
             builder.AppendLine($"**Tags:** {string.Join(", ", skill.Manifest.Tags)}");
             builder.AppendLine();
@@ -98,7 +99,7 @@ public sealed class DefaultSkillPromptRenderer : ISkillPromptRenderer
         var shouldIncludeAllowedTools = options.IncludeAllowedTools &&
             (options.ResourcePolicy?.ShouldIncludeAllowedTools(skill) ?? true);
 
-        if (shouldIncludeAllowedTools && skill.Manifest.AllowedTools.Any())
+        if (shouldIncludeAllowedTools && skill.Manifest.AllowedTools.Count > 0)
         {
             builder.AppendLine($"**Allowed Tools:** {string.Join(", ", skill.Manifest.AllowedTools)}");
             builder.AppendLine();
