@@ -162,7 +162,7 @@ public class CustomResourcePolicy : IResourcePolicy
     public bool ShouldIncludeResource(SkillResource resource, Skill skill)
     {
         // Example: Only include resources from trusted skills
-        if (skill.Manifest.Author == "TrustedAuthor")
+        if (!string.IsNullOrEmpty(skill.Manifest.Author) && skill.Manifest.Author == "TrustedAuthor")
             return true;
         
         // Or only certain file types
