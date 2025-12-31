@@ -29,7 +29,7 @@ public sealed class SkillMetadata
     /// <summary>
     /// Gets the tags associated with the skill.
     /// </summary>
-    public IReadOnlyList<string> Tags { get; init; } = Array.Empty<string>();
+    public IReadOnlyList<string> Tags { get; init; } = [];
 
     /// <summary>
     /// Gets the path to the skill directory.

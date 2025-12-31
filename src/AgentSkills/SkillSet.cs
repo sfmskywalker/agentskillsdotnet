@@ -8,12 +8,12 @@ public sealed class SkillSet
     /// <summary>
     /// Gets the collection of skills in this skill set.
     /// </summary>
-    public IReadOnlyList<Skill> Skills { get; init; } = Array.Empty<Skill>();
+    public IReadOnlyList<Skill> Skills { get; init; } = [];
 
     /// <summary>
     /// Gets the diagnostics produced while loading this skill set.
     /// </summary>
-    public IReadOnlyList<SkillDiagnostic> Diagnostics { get; init; } = Array.Empty<SkillDiagnostic>();
+    public IReadOnlyList<SkillDiagnostic> Diagnostics { get; init; } = [];
 
     /// <summary>
     /// Gets a value indicating whether the skill set is valid (no errors in diagnostics).
