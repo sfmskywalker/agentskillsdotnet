@@ -14,17 +14,20 @@ This guide teaches you how to write excellent skills for AgentSkills.NET.
 
 ## Skill Structure
 
-A skill is a directory containing a `SKILL.md` file and optional resource folders.
+A skill is a directory containing a `SKILL.md` file (or `skill.md` as fallback) and optional resource folders.
 
 ### Basic Structure
 
 ```
 my-skill/
-├── SKILL.md           # Required: skill definition
+├── SKILL.md           # Required: skill definition (SKILL.md preferred, skill.md also accepted)
 ├── scripts/           # Optional: script files
 ├── references/        # Optional: reference docs
 └── assets/           # Optional: supporting files
 ```
+
+> **Note:** Both `SKILL.md` (uppercase) and `skill.md` (lowercase) are supported. 
+> If both files exist in the same directory, `SKILL.md` takes precedence.
 
 ### SKILL.md Format
 

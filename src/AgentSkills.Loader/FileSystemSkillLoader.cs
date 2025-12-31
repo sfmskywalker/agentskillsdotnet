@@ -9,6 +9,7 @@ namespace AgentSkills.Loader;
 public sealed class FileSystemSkillLoader : ISkillLoader
 {
     private const string SkillFileName = "SKILL.md";
+    private const string SkillFileNameLowercase = "skill.md";
     private const string FrontmatterDelimiter = "---";
 
     private readonly IDeserializer _yamlDeserializer;
@@ -107,9 +108,9 @@ public sealed class FileSystemSkillLoader : ISkillLoader
     public (Skill? Skill, IReadOnlyList<SkillDiagnostic> Diagnostics) LoadSkill(string skillDirectoryPath)
     {
         List<SkillDiagnostic> diagnostics = [];
-        var skillFilePath = Path.Combine(skillDirectoryPath, SkillFileName);
+        var skillFilePath = FindSkillMdFile(skillDirectoryPath);
 
-        if (!File.Exists(skillFilePath))
+        if (skillFilePath == null)
         {
             diagnostics.Add(CreateDiagnostic(
                 DiagnosticSeverity.Error,
@@ -156,9 +157,9 @@ public sealed class FileSystemSkillLoader : ISkillLoader
     private (SkillMetadata? Metadata, IReadOnlyList<SkillDiagnostic> Diagnostics) LoadSkillMetadata(string skillDirectoryPath)
     {
         List<SkillDiagnostic> diagnostics = [];
-        var skillFilePath = Path.Combine(skillDirectoryPath, SkillFileName);
+        var skillFilePath = FindSkillMdFile(skillDirectoryPath);
 
-        if (!File.Exists(skillFilePath))
+        if (skillFilePath == null)
         {
             diagnostics.Add(CreateDiagnostic(
                 DiagnosticSeverity.Error,
@@ -220,7 +221,33 @@ public sealed class FileSystemSkillLoader : ISkillLoader
     {
         try
         {
-            return Directory.GetFiles(directoryPath, SkillFileName, SearchOption.AllDirectories);
+            // Find directories containing SKILL.md or skill.md files
+            var uppercaseFiles = Directory.GetFiles(directoryPath, SkillFileName, SearchOption.AllDirectories);
+            var lowercaseFiles = Directory.GetFiles(directoryPath, SkillFileNameLowercase, SearchOption.AllDirectories);
+            
+            // Combine and deduplicate: prefer SKILL.md when both exist in same directory
+            var directories = new HashSet<string>();
+            var result = new List<string>();
+            
+            // First, add all uppercase files
+            foreach (var file in uppercaseFiles)
+            {
+                var dir = Path.GetDirectoryName(file)!;
+                directories.Add(dir);
+                result.Add(file);
+            }
+            
+            // Then, add lowercase files only if their directory doesn't already have an uppercase file
+            foreach (var file in lowercaseFiles)
+            {
+                var dir = Path.GetDirectoryName(file)!;
+                if (!directories.Contains(dir))
+                {
+                    result.Add(file);
+                }
+            }
+            
+            return result;
         }
         catch (UnauthorizedAccessException)
         {
@@ -231,6 +258,29 @@ public sealed class FileSystemSkillLoader : ISkillLoader
         {
             return [];
         }
+    }
+
+    /// <summary>
+    /// Finds the skill file (SKILL.md or skill.md) in the specified directory.
+    /// Prefers SKILL.md if both exist.
+    /// </summary>
+    /// <param name="directory">The directory to search in.</param>
+    /// <returns>The path to the skill file, or null if not found.</returns>
+    private string? FindSkillMdFile(string directory)
+    {
+        var uppercaseFile = Path.Combine(directory, SkillFileName);
+        if (File.Exists(uppercaseFile))
+        {
+            return uppercaseFile;
+        }
+        
+        var lowercaseFile = Path.Combine(directory, SkillFileNameLowercase);
+        if (File.Exists(lowercaseFile))
+        {
+            return lowercaseFile;
+        }
+        
+        return null;
     }
 
     private string? ExtractFrontmatter(string skillFilePath)
