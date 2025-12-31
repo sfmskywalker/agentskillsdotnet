@@ -460,3 +460,156 @@ var prompt = renderer.RenderSkillDetails(skill, options);
 
 ---
 
+
+
+## AgentSkills.Adapters.Microsoft.AgentFramework
+
+The Microsoft Agent Framework adapter provides helpers for integrating AgentSkills with Microsoft Agent Framework agents. This is a thin adapter that keeps framework-specific code isolated from core packages.
+
+### Core Classes
+
+#### `SkillPromptBuilder`
+Builder for creating agent instructions that include skill information following progressive disclosure pattern.
+
+**Constructor:**
+- `SkillPromptBuilder(ISkillPromptRenderer? renderer = null)` - Creates a new builder. If renderer is null, uses DefaultSkillPromptRenderer.
+
+**Methods:**
+- `WithBaseInstructions(string instructions)` - Sets the base instructions for the agent. Returns the builder for chaining.
+- `WithSkills(IEnumerable<SkillMetadata> metadata)` - Adds skills to be made available to the agent. Returns the builder for chaining.
+- `WithSkillSet(SkillSet skillSet)` - Adds a skill set to be made available to the agent. Returns the builder for chaining.
+- `Build(PromptRenderOptions? options = null)` - Builds the complete instructions including base instructions and skill listing.
+- `BuildSkillDetails(Skill skill, PromptRenderOptions? options = null)` - Renders detailed instructions for a specific activated skill.
+
+**Usage:**
+```csharp
+var instructions = new SkillPromptBuilder()
+    .WithBaseInstructions("You are a helpful assistant.")
+    .WithSkillSet(skillSet)
+    .Build();
+```
+
+**Progressive Disclosure:**
+The builder implements progressive disclosure:
+1. `Build()` returns base instructions + skill list (summary only)
+2. `BuildSkillDetails()` returns full skill instructions (when activated)
+
+### Extension Methods
+
+#### `SkillExtensions`
+Extension methods for integrating skills with Microsoft Agent Framework.
+
+**Methods:**
+
+##### `GetInstructions`
+```csharp
+public static string GetInstructions(
+    this Skill skill,
+    ISkillPromptRenderer? renderer = null,
+    PromptRenderOptions? options = null)
+```
+Gets the skill instructions as a formatted prompt suitable for agent consumption. Use this when an agent activates a specific skill.
+
+**Example:**
+```csharp
+var instructions = skill.GetInstructions();
+```
+
+##### `GetFunctionName`
+```csharp
+public static string GetFunctionName(this Skill skill)
+```
+Gets a sanitized function name for the skill. Converts hyphens to underscores (e.g., "example-skill" → "example_skill").
+
+**Example:**
+```csharp
+var functionName = skill.GetFunctionName(); // "my_skill"
+```
+
+##### `GetFunctionDescription`
+```csharp
+public static string GetFunctionDescription(this Skill skill)
+```
+Gets a description suitable for function tool metadata. Returns "Activate skill: {description}".
+
+**Example:**
+```csharp
+var description = skill.GetFunctionDescription();
+// "Activate skill: An example skill for testing"
+```
+
+### Integration Pattern
+
+The recommended integration pattern with Microsoft Agent Framework:
+
+```csharp
+// 1. Load skills
+var loader = new FileSystemSkillLoader();
+var skillSet = loader.LoadSkillSet("/path/to/skills");
+var validator = new SkillValidator();
+var validSkills = skillSet.Skills.Where(s => validator.Validate(s).IsValid);
+
+// 2. Build base instructions with skill list (progressive disclosure - part 1)
+var baseInstructions = new SkillPromptBuilder()
+    .WithBaseInstructions("You are a helpful assistant...")
+    .WithSkills(validSkills.Select(s => s.Metadata))
+    .Build();
+
+// 3. Create agent with base instructions
+var agent = chatClient.CreateAIAgent(
+    instructions: baseInstructions,
+    name: "MyAgent");
+
+// 4. Register each skill as a function (progressive disclosure - part 2)
+foreach (var skill in validSkills)
+{
+    var function = AIFunctionFactory.Create(
+        method: () => skill.GetInstructions(),
+        name: skill.GetFunctionName(),
+        description: skill.GetFunctionDescription());
+    
+    // Add function to agent's tools
+    // agent.AddTool(function);
+}
+
+// 5. When agent calls a skill function, it receives full instructions
+// This completes progressive disclosure: list → activate → load details
+```
+
+### Design Principles
+
+1. **Thin Adapter**: Provides helpers only, no framework dependencies
+2. **Progressive Disclosure**: Enforced through API design (list first, details on activation)
+3. **No Bleeding**: Framework-specific code stays in adapter, never in core
+4. **Host Control**: Applications decide what to expose and when
+5. **Type Safe**: Leverages strong typing where possible
+
+### No Framework Dependencies
+
+The adapter intentionally does NOT reference Microsoft Agent Framework packages. This:
+- Keeps the adapter thin and maintainable
+- Avoids version lock-in and dependency conflicts
+- Makes the adapter work across framework versions
+- Provides flexibility in how skills are integrated
+
+Instead, the adapter provides:
+- String-based instructions compatible with any framework
+- Helper methods using standard .NET types
+- Clear integration patterns via documentation and samples
+
+### Sample Application
+
+See [AgentSkills.Sample.AgentFramework](../../samples/AgentSkills.Sample.AgentFramework/) for a complete working example demonstrating:
+- Loading and validating skills
+- Building agent instructions with skill listings
+- Simulating skill activation
+- Demonstrating the integration pattern
+
+### Related Documentation
+
+- [ADR 0004: Microsoft Agent Framework Adapter Design](adr/0004-microsoft-agent-framework-adapter.md)
+- [Adapter README](../../src/AgentSkills.Adapters.Microsoft.AgentFramework/README.md)
+- [Microsoft Agent Framework Documentation](https://learn.microsoft.com/en-us/agent-framework/)
+
+---
+
