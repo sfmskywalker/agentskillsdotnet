@@ -1,3 +1,4 @@
+using System.Text;
 using AgentSkills.Validation;
 
 namespace AgentSkills.Tests;
@@ -746,5 +747,210 @@ public class SkillValidatorTests
         // Assert
         Assert.True(result.IsValid);
         Assert.Empty(result.Errors);
+    }
+
+    [Fact]
+    public void Validate_ComposedUnicodeCharacters_ReturnsNoErrors()
+    {
+        // Arrange - using café with composed é (U+00E9)
+        var composedName = "caf\u00e9"; // café with single codepoint for é
+        var skill = new Skill
+        {
+            Manifest = new SkillManifest
+            {
+                Name = composedName,
+                Description = "A skill with composed Unicode characters in the name"
+            },
+            Instructions = "# Instructions",
+            Path = Path.Combine(_fixturesPath, composedName)
+        };
+
+        // Act
+        var result = _validator.Validate(skill);
+
+        // Assert
+        Assert.True(result.IsValid, $"Composed Unicode skill name should be valid. Errors: {string.Join(", ", result.Errors.Select(e => e.Message))}");
+        Assert.Empty(result.Errors);
+    }
+
+    [Fact]
+    public void Validate_DecomposedUnicodeCharacters_ReturnsNoErrors()
+    {
+        // Arrange - using café with decomposed é (e + combining acute accent)
+        var decomposedName = "cafe\u0301"; // café with e + combining accent U+0301
+        var skill = new Skill
+        {
+            Manifest = new SkillManifest
+            {
+                Name = decomposedName,
+                Description = "A skill with decomposed Unicode characters in the name"
+            },
+            Instructions = "# Instructions",
+            Path = Path.Combine(_fixturesPath, decomposedName)
+        };
+
+        // Act
+        var result = _validator.Validate(skill);
+
+        // Assert
+        Assert.True(result.IsValid, $"Decomposed Unicode skill name should be valid. Errors: {string.Join(", ", result.Errors.Select(e => e.Message))}");
+        Assert.Empty(result.Errors);
+    }
+
+    [Fact]
+    public void Validate_ComposedAndDecomposedUnicodeAreEquivalent()
+    {
+        // Arrange
+        var composedName = "caf\u00e9"; // café with single codepoint for é (U+00E9)
+        var decomposedName = "cafe\u0301"; // café with e + combining accent (U+0301)
+
+        // Both forms should normalize to the same string
+        Assert.NotEqual(composedName, decomposedName); // Different before normalization
+        Assert.Equal(
+            composedName.Normalize(NormalizationForm.FormKC),
+            decomposedName.Normalize(NormalizationForm.FormKC)); // Same after normalization
+
+        var composedSkill = new Skill
+        {
+            Manifest = new SkillManifest
+            {
+                Name = composedName,
+                Description = "A skill with composed Unicode characters"
+            },
+            Instructions = "# Instructions",
+            Path = Path.Combine(_fixturesPath, composedName)
+        };
+
+        var decomposedSkill = new Skill
+        {
+            Manifest = new SkillManifest
+            {
+                Name = decomposedName,
+                Description = "A skill with decomposed Unicode characters"
+            },
+            Instructions = "# Instructions",
+            Path = Path.Combine(_fixturesPath, decomposedName)
+        };
+
+        // Act
+        var composedResult = _validator.Validate(composedSkill);
+        var decomposedResult = _validator.Validate(decomposedSkill);
+
+        // Assert - both should be valid
+        Assert.True(composedResult.IsValid, "Composed form should be valid");
+        Assert.True(decomposedResult.IsValid, "Decomposed form should be valid");
+    }
+
+    [Fact]
+    public void Validate_DirectoryNameMatchesAfterNormalization()
+    {
+        // Arrange - skill name is composed, directory name is decomposed
+        var composedName = "caf\u00e9"; // café with single codepoint for é
+        var decomposedDirName = "cafe\u0301"; // café with e + combining accent
+
+        var skill = new Skill
+        {
+            Manifest = new SkillManifest
+            {
+                Name = composedName,
+                Description = "A skill testing normalization in directory matching"
+            },
+            Instructions = "# Instructions",
+            Path = Path.Combine("/path/to", decomposedDirName)
+        };
+
+        // Act
+        var result = _validator.Validate(skill);
+
+        // Assert - should be valid because both normalize to the same form
+        Assert.True(result.IsValid, $"Skill should be valid when directory name matches after normalization. Errors: {string.Join(", ", result.Errors.Select(e => e.Message))}");
+        Assert.Empty(result.Errors);
+    }
+
+    [Fact]
+    public void Validate_DirectoryNameMismatchAfterNormalization()
+    {
+        // Arrange - even after normalization, these are different
+        var skillName = "caf\u00e9"; // café
+        var directoryName = "cafe"; // cafe (no accent at all)
+
+        var skill = new Skill
+        {
+            Manifest = new SkillManifest
+            {
+                Name = skillName,
+                Description = "A skill with mismatched directory name even after normalization"
+            },
+            Instructions = "# Instructions",
+            Path = Path.Combine("/path/to", directoryName)
+        };
+
+        // Act
+        var result = _validator.Validate(skill);
+
+        // Assert - should have directory mismatch error
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, d => d.Code == "VAL010");
+    }
+
+    [Fact]
+    public void Validate_NFKCNormalizesCompatibilityCharacters()
+    {
+        // Arrange - using compatibility character that NFKC will normalize
+        // U+FB01 (ﬁ ligature) should normalize to "fi" in NFKC
+        var nameWithLigature = "\ufb01le"; // ﬁle (with fi ligature)
+        var normalizedExpected = "file"; // Expected after NFKC normalization
+
+        Assert.Equal(normalizedExpected, nameWithLigature.Normalize(NormalizationForm.FormKC));
+
+        var skill = new Skill
+        {
+            Manifest = new SkillManifest
+            {
+                Name = nameWithLigature,
+                Description = "A skill testing NFKC compatibility character normalization"
+            },
+            Instructions = "# Instructions",
+            Path = Path.Combine(_fixturesPath, nameWithLigature)
+        };
+
+        // Act
+        var result = _validator.Validate(skill);
+
+        // Assert - should be valid since "file" is a valid name
+        Assert.True(result.IsValid, $"Skill with NFKC-normalizable characters should be valid. Errors: {string.Join(", ", result.Errors.Select(e => e.Message))}");
+        Assert.Empty(result.Errors);
+    }
+
+    [Fact]
+    public void ValidateMetadata_ComposedAndDecomposedUnicode_BothValid()
+    {
+        // Arrange
+        var composedName = "caf\u00e9";
+        var decomposedName = "cafe\u0301";
+
+        var composedMetadata = new SkillMetadata
+        {
+            Name = composedName,
+            Description = "A skill with composed Unicode characters",
+            Path = Path.Combine("/path/to", composedName)
+        };
+
+        var decomposedMetadata = new SkillMetadata
+        {
+            Name = decomposedName,
+            Description = "A skill with decomposed Unicode characters",
+            Path = Path.Combine("/path/to", decomposedName)
+        };
+
+        // Act
+        var composedResult = _validator.ValidateMetadata(composedMetadata);
+        var decomposedResult = _validator.ValidateMetadata(decomposedMetadata);
+
+        // Assert
+        Assert.True(composedResult.IsValid, "Composed form metadata should be valid");
+        Assert.True(decomposedResult.IsValid, "Decomposed form metadata should be valid");
+        Assert.Empty(composedResult.Errors);
+        Assert.Empty(decomposedResult.Errors);
     }
 }

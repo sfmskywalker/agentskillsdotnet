@@ -241,7 +241,10 @@ Based on the [Agent Skills v1 specification](https://agentskills.io/specificatio
      - Only lowercase letters are allowed for scripts that have case (e.g., Latin, Cyrillic)
    - Cannot start or end with a hyphen
    - Cannot contain consecutive hyphens (`--`)
-   - Must match the parent directory name exactly
+   - **Unicode Normalization**: Skill names are normalized using NFKC (Normalization Form KC) before validation
+     - This ensures composed and decomposed Unicode characters are treated equivalently (e.g., "café" with composed é vs. decomposed e + combining accent)
+     - See [Unicode TR15](https://unicode.org/reports/tr15/) for normalization details
+   - Must match the parent directory name exactly (after both are normalized to NFKC)
 
 2. **Description Field (Required)**
    - Must be present and non-empty
