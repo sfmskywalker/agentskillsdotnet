@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace AgentSkills.Validation;
@@ -93,30 +94,33 @@ public sealed partial class SkillValidator : ISkillValidator
             return;
         }
 
+        // Apply NFKC Unicode normalization to ensure composed and decomposed characters are treated equivalently
+        var normalizedName = name.Normalize(NormalizationForm.FormKC);
+
         // Check length constraints
-        if (name.Length < NameMinLength || name.Length > NameMaxLength)
+        if (normalizedName.Length < NameMinLength || normalizedName.Length > NameMaxLength)
         {
             diagnostics.Add(CreateDiagnostic(
                 DiagnosticSeverity.Error,
-                $"Field 'name' must be {NameMinLength}-{NameMaxLength} characters (found: {name.Length})",
+                $"Field 'name' must be {NameMinLength}-{NameMaxLength} characters (found: {normalizedName.Length})",
                 skillPath,
                 "VAL002"));
         }
 
         // Check pattern: lowercase Unicode letters, numbers, hyphens only, no leading/trailing/consecutive hyphens
-        if (!NamePattern().IsMatch(name))
+        if (!NamePattern().IsMatch(normalizedName))
         {
             List<string> reasons = [];
 
             // Check for uppercase letters (including Unicode uppercase)
-            if (name.Any(c => char.IsLetter(c) && char.IsUpper(c)))
+            if (normalizedName.Any(c => char.IsLetter(c) && char.IsUpper(c)))
                 reasons.Add("contains uppercase letters");
-            if (name.StartsWith('-') || name.EndsWith('-'))
+            if (normalizedName.StartsWith('-') || normalizedName.EndsWith('-'))
                 reasons.Add("starts or ends with hyphen");
-            if (name.Contains("--"))
+            if (normalizedName.Contains("--"))
                 reasons.Add("contains consecutive hyphens");
             // Check for invalid characters (anything that's not a letter, digit, or hyphen)
-            if (name.Any(c => !char.IsLetterOrDigit(c) && c != '-'))
+            if (normalizedName.Any(c => !char.IsLetterOrDigit(c) && c != '-'))
                 reasons.Add("contains invalid characters");
 
             var reasonText = reasons.Count > 0 ? $" ({string.Join(", ", reasons)})" : "";
@@ -203,7 +207,11 @@ public sealed partial class SkillValidator : ISkillValidator
             return;
         }
 
-        if (!string.Equals(directoryName, skillName, StringComparison.Ordinal))
+        // Apply NFKC Unicode normalization to both directory and skill names for consistent comparison
+        var normalizedDirectoryName = directoryName.Normalize(NormalizationForm.FormKC);
+        var normalizedSkillName = skillName.Normalize(NormalizationForm.FormKC);
+
+        if (!string.Equals(normalizedDirectoryName, normalizedSkillName, StringComparison.Ordinal))
         {
             diagnostics.Add(CreateDiagnostic(
                 DiagnosticSeverity.Error,
