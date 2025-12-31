@@ -76,9 +76,15 @@ Any important notes or tips...
 - `analyze-code`
 - `generate-report`
 - `search-documents`
+- `技能` (Chinese)
+- `навык` (Russian)
+- `مهارة` (Arabic)
+- `技能-测试` (Chinese with hyphens)
+- `skill-技能` (mixed scripts)
 
 ❌ **Bad Names**
 - `SendEmail` (uppercase not allowed)
+- `НАВЫК` (uppercase Russian not allowed)
 - `send--email` (consecutive hyphens not allowed)
 - `-send-email` (can't start with hyphen)
 - `send_email` (use hyphens, not underscores)
@@ -133,7 +139,10 @@ Send email.
 - **Type**: string
 - **Required**: Yes
 - **Length**: 1-64 characters
-- **Pattern**: Lowercase letters (a-z), numbers (0-9), hyphens only
+- **Pattern**: Unicode lowercase letters, numbers (0-9), hyphens only
+  - Supports Unicode letters from any script (Chinese, Russian, Arabic, etc.)
+  - Letters without case distinction (e.g., Chinese, Arabic) are allowed
+  - Only lowercase letters are allowed for scripts that have case (e.g., Latin, Cyrillic)
 - **Rules**: 
   - Cannot start or end with hyphen
   - Cannot contain consecutive hyphens (`--`)

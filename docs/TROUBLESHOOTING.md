@@ -194,7 +194,7 @@ description: My description
 ---
 ```
 
-**Valid pattern:** lowercase letters, numbers, and single hyphens only
+**Valid pattern:** Unicode lowercase letters (any script), numbers, and single hyphens only. Supports Chinese, Russian, Arabic, and other Unicode scripts. For scripts with case distinction (like Latin or Cyrillic), only lowercase letters are allowed.
 
 ### VAL004: Required field 'description' is missing or empty
 

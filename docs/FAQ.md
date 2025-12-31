@@ -68,7 +68,7 @@ The Agent Skills specification requires lowercase names with hyphens for consist
 
 ### Can skill names contain underscores?
 
-No. Only lowercase letters (a-z), numbers (0-9), and hyphens are allowed. Use `my-skill`, not `my_skill`.
+No. Only Unicode lowercase letters (any script like Chinese, Russian, Arabic, etc.), numbers (0-9), and hyphens are allowed. Use `my-skill`, not `my_skill`. For scripts with case distinction (like Latin or Cyrillic), only lowercase letters are allowed. Scripts without case distinction (like Chinese or Arabic) are fully supported.
 
 ### Why does my directory name need to match the skill name?
 
