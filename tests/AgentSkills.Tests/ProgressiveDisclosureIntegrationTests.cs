@@ -61,7 +61,7 @@ public class ProgressiveDisclosureIntegrationTests
         // Step 4: Activate a specific skill (simulate LLM choosing one)
         var chosenSkill = validMetadata.First();
         var skillPath = chosenSkill.Path;
-        var (skill, skillDiagnostics) = loader.LoadSkill(skillPath);
+        var (skill, _) = loader.LoadSkill(skillPath);
         Assert.NotNull(skill);
 
         // Step 5: Render full skill details (progressive disclosure - stage 2)
