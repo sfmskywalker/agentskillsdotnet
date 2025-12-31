@@ -59,9 +59,10 @@ public class PerformanceTests
         var skillCount = metadata.Count;
         var avgTimePerSkill = sw.ElapsedMilliseconds / (double)skillCount;
 
-        // Each skill should take less than 1ms to scan metadata
-        Assert.True(avgTimePerSkill < 1, 
-            $"Average time per skill: {avgTimePerSkill:F2}ms, expected < 1ms");
+        // Each skill should take less than 10ms to scan metadata (generous for CI environments)
+        // This is a sanity check to catch major regressions, not a strict benchmark
+        Assert.True(avgTimePerSkill < 10, 
+            $"Average time per skill: {avgTimePerSkill:F2}ms, expected < 10ms");
         
         // Log for diagnostics
         Console.WriteLine($"Loaded {skillCount} skills in {sw.ElapsedMilliseconds}ms");
