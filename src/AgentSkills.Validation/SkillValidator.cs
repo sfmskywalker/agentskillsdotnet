@@ -215,7 +215,7 @@ public sealed partial class SkillValidator : ISkillValidator
         {
             diagnostics.Add(CreateDiagnostic(
                 DiagnosticSeverity.Error,
-                $"Directory name '{directoryName}' does not match skill name '{skillName}'",
+                $"Directory name '{directoryName}' does not match skill name '{skillName}' (after NFKC normalization)",
                 skillPath,
                 "VAL010"));
         }
