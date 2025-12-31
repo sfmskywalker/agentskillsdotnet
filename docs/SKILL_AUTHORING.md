@@ -190,20 +190,14 @@ Send email.
 - **Example**: `[filesystem, network, calculator]`
 - **Security Note**: This is informational - hosts decide what's actually allowed
 
-### Custom Fields
+### Allowed Fields Summary
 
-You can add custom fields for your own use:
+The following fields are recognized by the Agent Skills v1 specification:
 
-```yaml
----
-name: my-skill
-description: Example skill
-custom-field: custom value
-x-my-metadata: anything here
----
-```
+- **Required**: `name`, `description`
+- **Optional**: `version`, `author`, `tags`, `allowed-tools`, `compatibility`
 
-Custom fields are preserved in `SkillManifest.AdditionalFields` dictionary.
+**Important**: Skills with unexpected fields (fields not in the list above) will fail validation with error code `VAL011`. This ensures consistency and helps catch typos in field names.
 
 ## Validation Rules
 
@@ -234,6 +228,7 @@ AgentSkills.NET validates skills against the [Agent Skills v1 specification](htt
 |------|-----------|----------|
 | Version field is empty | VAL007 | Warning |
 | Compatibility exceeds 500 chars | VAL008 | Error |
+| Unexpected field(s) in frontmatter | VAL011 | Error |
 
 ### Testing Your Skills
 
