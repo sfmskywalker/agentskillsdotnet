@@ -10,7 +10,7 @@ public class FileSystemSkillLoaderTests
     public FileSystemSkillLoaderTests()
     {
         _loader = new FileSystemSkillLoader();
-        
+
         // Navigate from test assembly location to fixtures directory
         var assemblyLocation = AppContext.BaseDirectory;
         var solutionRoot = Path.GetFullPath(Path.Combine(assemblyLocation, "..", "..", "..", "..", ".."));
@@ -42,8 +42,8 @@ public class FileSystemSkillLoaderTests
         // Assert
         Assert.Empty(skillSet.Skills);
         Assert.NotEmpty(skillSet.Diagnostics);
-        Assert.Contains(skillSet.Diagnostics, d => 
-            d.Severity == DiagnosticSeverity.Error && 
+        Assert.Contains(skillSet.Diagnostics, d =>
+            d.Severity == DiagnosticSeverity.Error &&
             d.Code == "LOADER001");
         Assert.False(skillSet.IsValid);
     }
@@ -105,8 +105,8 @@ public class FileSystemSkillLoaderTests
         // Assert
         Assert.Null(skill);
         Assert.NotEmpty(diagnostics);
-        Assert.Contains(diagnostics, d => 
-            d.Severity == DiagnosticSeverity.Error && 
+        Assert.Contains(diagnostics, d =>
+            d.Severity == DiagnosticSeverity.Error &&
             d.Code == "LOADER006" &&
             d.Message.Contains("name"));
     }
@@ -123,8 +123,8 @@ public class FileSystemSkillLoaderTests
         // Assert
         Assert.Null(skill);
         Assert.NotEmpty(diagnostics);
-        Assert.Contains(diagnostics, d => 
-            d.Severity == DiagnosticSeverity.Error && 
+        Assert.Contains(diagnostics, d =>
+            d.Severity == DiagnosticSeverity.Error &&
             d.Code == "LOADER004");
     }
 
@@ -140,8 +140,8 @@ public class FileSystemSkillLoaderTests
         // Assert
         Assert.Null(skill);
         Assert.NotEmpty(diagnostics);
-        Assert.Contains(diagnostics, d => 
-            d.Severity == DiagnosticSeverity.Error && 
+        Assert.Contains(diagnostics, d =>
+            d.Severity == DiagnosticSeverity.Error &&
             d.Code == "LOADER002");
     }
 
@@ -157,8 +157,8 @@ public class FileSystemSkillLoaderTests
         // Assert
         Assert.Null(skill);
         Assert.NotEmpty(diagnostics);
-        Assert.Contains(diagnostics, d => 
-            d.Severity == DiagnosticSeverity.Error && 
+        Assert.Contains(diagnostics, d =>
+            d.Severity == DiagnosticSeverity.Error &&
             d.Code == "LOADER002");
     }
 
@@ -172,7 +172,7 @@ public class FileSystemSkillLoaderTests
         Assert.NotEmpty(metadata);
         Assert.Contains(metadata, m => m.Name == "example-skill");
         Assert.Contains(metadata, m => m.Name == "minimal-skill");
-        
+
         var exampleMetadata = metadata.First(m => m.Name == "example-skill");
         Assert.Equal("An example skill for testing and demonstration", exampleMetadata.Description);
         Assert.Equal("1.0.0", exampleMetadata.Version);
@@ -192,8 +192,8 @@ public class FileSystemSkillLoaderTests
         // Assert
         Assert.Empty(metadata);
         Assert.NotEmpty(diagnostics);
-        Assert.Contains(diagnostics, d => 
-            d.Severity == DiagnosticSeverity.Error && 
+        Assert.Contains(diagnostics, d =>
+            d.Severity == DiagnosticSeverity.Error &&
             d.Code == "LOADER001");
     }
 
@@ -226,10 +226,10 @@ public class FileSystemSkillLoaderTests
         // Assert
         // Should have valid skills
         Assert.NotEmpty(skillSet.Skills);
-        
+
         // Should have diagnostics from invalid skills
         Assert.NotEmpty(skillSet.Diagnostics);
-        
+
         // Should not include invalid skills in the collection
         Assert.DoesNotContain(skillSet.Skills, s => s.Manifest.Name == "invalid-no-name");
     }
@@ -273,8 +273,8 @@ public class FileSystemSkillLoaderTests
         // Assert
         Assert.Null(skill);
         Assert.NotEmpty(diagnostics);
-        Assert.Contains(diagnostics, d => 
-            d.Severity == DiagnosticSeverity.Error && 
+        Assert.Contains(diagnostics, d =>
+            d.Severity == DiagnosticSeverity.Error &&
             d.Code == "LOADER005" &&
             d.Message.Contains("YAML"));
     }
@@ -293,8 +293,8 @@ public class FileSystemSkillLoaderTests
         Assert.NotEmpty(diagnostics);
         // Unclosed frontmatter results in YAML parse error because the parser
         // tries to parse the entire content (including markdown body) as YAML
-        Assert.Contains(diagnostics, d => 
-            d.Severity == DiagnosticSeverity.Error && 
+        Assert.Contains(diagnostics, d =>
+            d.Severity == DiagnosticSeverity.Error &&
             d.Code == "LOADER005" &&
             d.Message.Contains("YAML"));
     }
@@ -311,8 +311,8 @@ public class FileSystemSkillLoaderTests
         // Assert
         Assert.Null(skill);
         Assert.NotEmpty(diagnostics);
-        Assert.Contains(diagnostics, d => 
-            d.Severity == DiagnosticSeverity.Error && 
+        Assert.Contains(diagnostics, d =>
+            d.Severity == DiagnosticSeverity.Error &&
             d.Code == "LOADER006" &&
             d.Message.Contains("name"));
     }
@@ -330,10 +330,10 @@ public class FileSystemSkillLoaderTests
         Assert.NotNull(skill);
         Assert.Empty(diagnostics);
         Assert.Equal("triple-dash-body", skill.Manifest.Name);
-        
+
         // Verify that triple dashes in the body are preserved
         Assert.Contains("---", skill.Instructions);
-        
+
         // Verify the body contains the expected text
         Assert.Contains("triple dashes that should not be confused with frontmatter", skill.Instructions);
         Assert.Contains("This should all be preserved verbatim", skill.Instructions);
@@ -348,10 +348,10 @@ public class FileSystemSkillLoaderTests
         // Assert
         // Should not include malformed skill in metadata
         Assert.DoesNotContain(metadata, m => m.Name == "malformed-skill");
-        
+
         // Should have error diagnostic for malformed YAML
-        Assert.Contains(diagnostics, d => 
-            d.Severity == DiagnosticSeverity.Error && 
+        Assert.Contains(diagnostics, d =>
+            d.Severity == DiagnosticSeverity.Error &&
             d.Code == "LOADER005");
     }
 
@@ -366,11 +366,11 @@ public class FileSystemSkillLoaderTests
 
         // Assert
         Assert.NotNull(skill);
-        
+
         // Instructions should not contain YAML frontmatter delimiters at the start
         Assert.DoesNotContain("---\nname:", skill.Instructions);
         Assert.DoesNotContain("description:", skill.Instructions);
-        
+
         // Instructions should start with the markdown content
         Assert.StartsWith("#", skill.Instructions.TrimStart());
     }

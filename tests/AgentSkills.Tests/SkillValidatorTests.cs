@@ -17,7 +17,7 @@ public class SkillValidatorTests
         // Find the fixtures directory by searching upward from the test assembly location
         var testDirectory = Directory.GetCurrentDirectory();
         var current = new DirectoryInfo(testDirectory);
-        
+
         while (current != null && !Directory.Exists(Path.Combine(current.FullName, "fixtures", "skills")))
         {
             current = current.Parent;
@@ -343,7 +343,7 @@ public class SkillValidatorTests
             };
 
             var result = _validator.Validate(skill);
-            
+
             Assert.True(result.IsValid, $"Name '{name}' should be valid but validation failed");
         }
     }
@@ -378,9 +378,9 @@ public class SkillValidatorTests
             };
 
             var result = _validator.Validate(skill);
-            
+
             Assert.False(result.IsValid, $"Name '{name}' should be invalid but validation passed");
-            Assert.True(result.Errors.Any(d => d.Code == "VAL003"), 
+            Assert.True(result.Errors.Any(d => d.Code == "VAL003"),
                 $"Name '{name}' should produce VAL003 error");
         }
     }

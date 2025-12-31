@@ -13,7 +13,7 @@ public class IntegrationTests
     public IntegrationTests()
     {
         _loader = new FileSystemSkillLoader();
-        
+
         var assemblyLocation = AppContext.BaseDirectory;
         var solutionRoot = Path.GetFullPath(Path.Combine(assemblyLocation, "..", "..", "..", "..", ".."));
         _fixturesPath = Path.Combine(solutionRoot, "fixtures", "skills");
@@ -24,13 +24,13 @@ public class IntegrationTests
     {
         // Act - Load metadata first (fast path)
         var (metadata, _) = _loader.LoadMetadata(_fixturesPath);
-        
+
         // Act - Load full skill set
         var skillSet = _loader.LoadSkillSet(_fixturesPath);
 
         // Assert - Metadata and skills should match
         Assert.Equal(metadata.Count, skillSet.Skills.Count);
-        
+
         foreach (var meta in metadata)
         {
             var skill = skillSet.GetSkill(meta.Name);
@@ -95,13 +95,13 @@ public class IntegrationTests
 
         // Assert - Should have some diagnostics from invalid skills
         Assert.NotEmpty(skillSet.Diagnostics);
-        
+
         // Should have errors from invalid-no-name
-        Assert.Contains(skillSet.Diagnostics, d => 
+        Assert.Contains(skillSet.Diagnostics, d =>
             d.Code == "LOADER006" && d.Message.Contains("name"));
-        
+
         // Should have errors from no-frontmatter
-        Assert.Contains(skillSet.Diagnostics, d => 
+        Assert.Contains(skillSet.Diagnostics, d =>
             d.Code == "LOADER004");
     }
 
@@ -115,7 +115,7 @@ public class IntegrationTests
         Assert.NotEmpty(skillSet.Skills);
         Assert.Contains(skillSet.Skills, s => s.Manifest.Name == "example-skill");
         Assert.Contains(skillSet.Skills, s => s.Manifest.Name == "minimal-skill");
-        
+
         // Invalid skills should not be in the collection
         Assert.DoesNotContain(skillSet.Skills, s => s.Manifest.Name == "invalid-no-name");
     }
@@ -169,7 +169,7 @@ public class IntegrationTests
         Assert.Empty(diagnostics);
         Assert.Equal("example-skill", skill.Manifest.Name);
         Assert.NotEmpty(skill.Instructions);
-        
+
         // Metadata should be accessible
         var metadata = skill.Metadata;
         Assert.Equal(skill.Manifest.Name, metadata.Name);

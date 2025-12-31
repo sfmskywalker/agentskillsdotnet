@@ -12,7 +12,7 @@ public sealed class SkillPromptBuilder
     private readonly ISkillPromptRenderer _renderer;
     private readonly List<SkillMetadata> _availableSkills = new();
     private string? _baseInstructions;
-    
+
     /// <summary>
     /// Initializes a new instance of <see cref="SkillPromptBuilder"/>.
     /// </summary>

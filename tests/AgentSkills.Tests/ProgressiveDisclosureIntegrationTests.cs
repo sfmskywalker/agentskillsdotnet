@@ -50,7 +50,7 @@ public class ProgressiveDisclosureIntegrationTests
         var listPrompt = renderer.RenderSkillList(validMetadata);
         Assert.NotEmpty(listPrompt);
         Assert.Contains("Available Skills", listPrompt);
-        
+
         // Verify list contains skill names and descriptions but not full instructions
         foreach (var meta in validMetadata)
         {
@@ -167,10 +167,10 @@ public class ProgressiveDisclosureIntegrationTests
         // Assert - List should be more compact (doesn't include instructions)
         Assert.True(listPrompt.Length < detailsPrompt.Length,
             "Skill list should be more compact than full details");
-        
+
         // List should not contain full instructions
         Assert.DoesNotContain(skill.Instructions, listPrompt);
-        
+
         // Details should contain full instructions
         Assert.Contains(skill.Instructions, detailsPrompt);
     }
@@ -195,7 +195,7 @@ public class ProgressiveDisclosureIntegrationTests
         // Assert
         // Valid skills prompt should be shorter or equal (no invalid skills)
         Assert.True(validSkillsPrompt.Length <= allSkillsPrompt.Length);
-        
+
         // All valid skills should appear in the prompt
         foreach (var meta in validMetadata)
         {

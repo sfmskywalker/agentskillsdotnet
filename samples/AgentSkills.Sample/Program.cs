@@ -1,7 +1,7 @@
 using AgentSkills;
 using AgentSkills.Loader;
-using AgentSkills.Validation;
 using AgentSkills.Prompts;
+using AgentSkills.Validation;
 
 // AgentSkills.NET Sample Application
 // This is a walking skeleton that demonstrates:
@@ -116,10 +116,10 @@ Console.WriteLine($"  Valid: {skillSet.IsValid}");
 if (skillSet.Diagnostics.Any())
 {
     Console.WriteLine($"  Diagnostics: {skillSet.Diagnostics.Count}");
-    
+
     var errors = skillSet.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToList();
     var warnings = skillSet.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Warning).ToList();
-    
+
     if (errors.Any())
     {
         Console.WriteLine($"    Errors: {errors.Count}");
@@ -130,7 +130,7 @@ if (skillSet.Diagnostics.Any())
                 Console.WriteLine($"         Path: {Path.GetFileName(error.Path)}");
         }
     }
-    
+
     if (warnings.Any())
     {
         Console.WriteLine($"    Warnings: {warnings.Count}");
@@ -145,7 +145,7 @@ if (skillSet.Skills.Any())
     Console.WriteLine("Step 6: Activating skill (loading full content)...");
     Console.WriteLine($"  Selected: {firstSkill.Manifest.Name}");
     Console.WriteLine();
-    
+
     // Step 7: Validate the activated skill
     Console.WriteLine("Step 7: Validating activated skill...");
     var skillValidation = validator.Validate(firstSkill);
@@ -163,29 +163,29 @@ if (skillSet.Skills.Any())
         Console.WriteLine($"  Warnings: {skillValidation.Warnings.Count()}");
     }
     Console.WriteLine();
-    
+
     // Step 8: Display full skill information
     Console.WriteLine("Step 8: Full skill details:");
     Console.WriteLine("---------------------------");
     Console.WriteLine($"Name: {firstSkill.Manifest.Name}");
     Console.WriteLine($"Description: {firstSkill.Manifest.Description}");
-    
+
     if (firstSkill.Manifest.Version != null)
         Console.WriteLine($"Version: {firstSkill.Manifest.Version}");
-    
+
     if (firstSkill.Manifest.Author != null)
         Console.WriteLine($"Author: {firstSkill.Manifest.Author}");
-    
+
     if (firstSkill.Manifest.Tags.Any())
         Console.WriteLine($"Tags: {string.Join(", ", firstSkill.Manifest.Tags)}");
-    
+
     if (firstSkill.Manifest.AllowedTools.Any())
         Console.WriteLine($"Allowed Tools: {string.Join(", ", firstSkill.Manifest.AllowedTools)}");
-    
+
     Console.WriteLine();
     Console.WriteLine("Instructions (first 300 chars):");
-    var preview = firstSkill.Instructions.Length > 300 
-        ? firstSkill.Instructions.Substring(0, 300) + "..." 
+    var preview = firstSkill.Instructions.Length > 300
+        ? firstSkill.Instructions.Substring(0, 300) + "..."
         : firstSkill.Instructions;
     Console.WriteLine(preview);
     Console.WriteLine();
@@ -202,11 +202,11 @@ if (skillSet.Skills.Any())
     // Step 8b: Demonstrate resource policy
     Console.WriteLine("Step 8b: Demonstrate resource policies:");
     Console.WriteLine("----------------------------------------");
-    
+
     Console.WriteLine("Without allowed-tools (using ExcludeAllResourcePolicy):");
-    var restrictiveOptions = new PromptRenderOptions 
-    { 
-        ResourcePolicy = ExcludeAllResourcePolicy.Instance 
+    var restrictiveOptions = new PromptRenderOptions
+    {
+        ResourcePolicy = ExcludeAllResourcePolicy.Instance
     };
     var restrictedPrompt = promptRenderer.RenderSkillDetails(firstSkill, restrictiveOptions);
     var hasAllowedTools = restrictedPrompt.Contains("Allowed Tools");

@@ -1,8 +1,8 @@
-﻿using AgentSkills;
-using AgentSkills.Loader;
-using AgentSkills.Validation;
-using AgentSkills.Prompts;
+using AgentSkills;
 using AgentSkills.Adapters.Microsoft.AgentFramework;
+using AgentSkills.Loader;
+using AgentSkills.Prompts;
+using AgentSkills.Validation;
 
 // AgentSkills.NET - Microsoft Agent Framework Adapter Sample
 // This sample demonstrates how to integrate AgentSkills with Microsoft Agent Framework
@@ -59,23 +59,23 @@ if (validSkills.Any())
     var skill = validSkills.First();
     Console.WriteLine($"Step 4: Simulating activation of skill '{skill.Manifest.Name}'...");
     Console.WriteLine();
-    
+
     // When the agent "activates" a skill (e.g., by calling a function),
     // it would receive the full skill instructions
     var skillInstructions = skill.GetInstructions();
-    
+
     Console.WriteLine("Step 5: Full skill instructions (returned when activated):");
     Console.WriteLine("-----------------------------------------------------------");
     Console.WriteLine(skillInstructions);
     Console.WriteLine();
-    
+
     // Step 6: Demonstrate function metadata helpers
     Console.WriteLine("Step 6: Function metadata helpers:");
     Console.WriteLine("-----------------------------------");
     Console.WriteLine($"Function Name: {skill.GetFunctionName()}");
     Console.WriteLine($"Function Description: {skill.GetFunctionDescription()}");
     Console.WriteLine();
-    
+
     // Step 7: Show how this would integrate with actual Agent Framework
     Console.WriteLine("Step 7: Integration pattern with Microsoft Agent Framework:");
     Console.WriteLine("------------------------------------------------------------");
@@ -113,12 +113,12 @@ Console.WriteLine("---------------------------------");
 if (validSkills.Any())
 {
     var skill = validSkills.First();
-    
+
     Console.WriteLine("Default rendering (includes all metadata):");
     var defaultInstructions = skill.GetInstructions();
     Console.WriteLine($"  Length: {defaultInstructions.Length} characters");
     Console.WriteLine();
-    
+
     Console.WriteLine("Restrictive rendering (excludes allowed-tools):");
     var restrictiveOptions = new PromptRenderOptions
     {

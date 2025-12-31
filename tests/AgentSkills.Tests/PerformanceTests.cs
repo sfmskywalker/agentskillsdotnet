@@ -1,7 +1,7 @@
-using AgentSkills.Loader;
-using AgentSkills.Validation;
-using AgentSkills.Prompts;
 using System.Diagnostics;
+using AgentSkills.Loader;
+using AgentSkills.Prompts;
+using AgentSkills.Validation;
 
 namespace AgentSkills.Tests;
 
@@ -21,7 +21,7 @@ public class PerformanceTests
         var assemblyLocation = AppContext.BaseDirectory;
         var solutionRoot = Path.GetFullPath(Path.Combine(assemblyLocation, "..", "..", "..", "..", ".."));
         _fixturesPath = Path.Combine(solutionRoot, "fixtures", "skills");
-        
+
         _loader = new FileSystemSkillLoader();
         _validator = new SkillValidator();
         _renderer = new DefaultSkillPromptRenderer();
@@ -40,7 +40,7 @@ public class PerformanceTests
 
         // Assert
         Assert.NotEmpty(metadata);
-        Assert.True(sw.ElapsedMilliseconds < 1000, 
+        Assert.True(sw.ElapsedMilliseconds < 1000,
             $"Metadata loading took {sw.ElapsedMilliseconds}ms, expected < 1000ms");
     }
 
@@ -65,9 +65,9 @@ public class PerformanceTests
         // - Increased fixture count (13 skills vs. original ~5)
         // - Still catches major regressions (100 skills = ~1 second is acceptable)
         // This is a sanity check to catch major regressions, not a strict benchmark
-        Assert.True(avgTimePerSkill < 10, 
+        Assert.True(avgTimePerSkill < 10,
             $"Average time per skill: {avgTimePerSkill:F2}ms, expected < 10ms");
-        
+
         // Log for diagnostics
         Console.WriteLine($"Loaded {skillCount} skills in {sw.ElapsedMilliseconds}ms");
         Console.WriteLine($"Average: {avgTimePerSkill:F2}ms per skill");
@@ -86,9 +86,9 @@ public class PerformanceTests
 
         // Assert
         Assert.NotEmpty(skillSet.Skills);
-        Assert.True(sw.ElapsedMilliseconds < 5000, 
+        Assert.True(sw.ElapsedMilliseconds < 5000,
             $"Full skill loading took {sw.ElapsedMilliseconds}ms, expected < 5000ms");
-        
+
         Console.WriteLine($"Loaded {skillSet.Skills.Count} full skills in {sw.ElapsedMilliseconds}ms");
     }
 
@@ -97,7 +97,7 @@ public class PerformanceTests
     {
         // Validation should be fast even for many skills
         var (metadata, _) = _loader.LoadMetadata(_fixturesPath);
-        
+
         var sw = Stopwatch.StartNew();
 
         // Act
@@ -109,9 +109,9 @@ public class PerformanceTests
         sw.Stop();
 
         // Assert - Validation should be < 500ms for fixture skills
-        Assert.True(sw.ElapsedMilliseconds < 500, 
+        Assert.True(sw.ElapsedMilliseconds < 500,
             $"Validation took {sw.ElapsedMilliseconds}ms, expected < 500ms");
-        
+
         Console.WriteLine($"Validated {metadata.Count} skills in {sw.ElapsedMilliseconds}ms");
     }
 
@@ -133,9 +133,9 @@ public class PerformanceTests
 
         // Assert - Rendering should be < 100ms
         Assert.NotEmpty(rendered);
-        Assert.True(sw.ElapsedMilliseconds < 100, 
+        Assert.True(sw.ElapsedMilliseconds < 100,
             $"Rendering skill list took {sw.ElapsedMilliseconds}ms, expected < 100ms");
-        
+
         Console.WriteLine($"Rendered {validMetadata.Count} skills in {sw.ElapsedMilliseconds}ms");
     }
 
@@ -144,7 +144,7 @@ public class PerformanceTests
     {
         // Test rendering a skill with large instructions
         var skillPath = Path.Combine(_fixturesPath, "large-instructions-skill");
-        
+
         // The fixture is required for this performance test; fail clearly if it's missing.
         Assert.True(Directory.Exists(skillPath), $"Fixture not available for test: {skillPath}");
 
@@ -160,9 +160,9 @@ public class PerformanceTests
 
         // Assert - Even large skills should render quickly (< 50ms)
         Assert.NotEmpty(rendered);
-        Assert.True(sw.ElapsedMilliseconds < 50, 
+        Assert.True(sw.ElapsedMilliseconds < 50,
             $"Rendering large skill took {sw.ElapsedMilliseconds}ms, expected < 50ms");
-        
+
         Console.WriteLine($"Rendered large skill ({skill.Instructions.Length} chars) in {sw.ElapsedMilliseconds}ms");
     }
 
@@ -174,7 +174,7 @@ public class PerformanceTests
 
         // Act - Full pipeline
         var (metadata, _) = _loader.LoadMetadata(_fixturesPath);
-        
+
         var validMetadata = new List<SkillMetadata>();
         foreach (var meta in metadata)
         {
@@ -184,16 +184,16 @@ public class PerformanceTests
                 validMetadata.Add(meta);
             }
         }
-        
+
         var rendered = _renderer.RenderSkillList(validMetadata);
 
         sw.Stop();
 
         // Assert - Full pipeline should be fast (< 2 seconds)
         Assert.NotEmpty(rendered);
-        Assert.True(sw.ElapsedMilliseconds < 2000, 
+        Assert.True(sw.ElapsedMilliseconds < 2000,
             $"Full pipeline took {sw.ElapsedMilliseconds}ms, expected < 2000ms");
-        
+
         Console.WriteLine($"Full pipeline (metadata only): {sw.ElapsedMilliseconds}ms for {validMetadata.Count} skills");
     }
 
@@ -211,9 +211,9 @@ public class PerformanceTests
 
         // Assert - Memory usage should be reasonable (< 50MB for fixture skills)
         // This is a very loose sanity check
-        Assert.True(memoryUsedMB < 50, 
+        Assert.True(memoryUsedMB < 50,
             $"Memory usage: {memoryUsedMB:F2}MB, expected < 50MB");
-        
+
         Console.WriteLine($"Memory used for {skillSet.Skills.Count} skills: {memoryUsedMB:F2}MB");
     }
 }
