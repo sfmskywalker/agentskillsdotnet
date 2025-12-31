@@ -226,7 +226,7 @@ public sealed class FileSystemSkillLoader : ISkillLoader
             var lowercaseFiles = Directory.GetFiles(directoryPath, SkillFileNameLowercase, SearchOption.AllDirectories);
             
             // Combine and deduplicate: prefer SKILL.md when both exist in same directory
-            var directories = new HashSet<string>();
+            var directories = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var result = new List<string>();
             
             // First, add all uppercase files

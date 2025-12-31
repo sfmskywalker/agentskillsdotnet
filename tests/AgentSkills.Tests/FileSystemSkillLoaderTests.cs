@@ -416,7 +416,7 @@ public class FileSystemSkillLoaderTests
     public void LoadMetadata_WithLowercaseSkillMd_ReturnsMetadata()
     {
         // Act
-        var (metadata, diagnostics) = _loader.LoadMetadata(_fixturesPath);
+        var (metadata, _) = _loader.LoadMetadata(_fixturesPath);
 
         // Assert
         Assert.NotEmpty(metadata);
