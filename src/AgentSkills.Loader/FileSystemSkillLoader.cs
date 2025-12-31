@@ -114,7 +114,7 @@ public sealed class FileSystemSkillLoader : ISkillLoader
         {
             diagnostics.Add(CreateDiagnostic(
                 DiagnosticSeverity.Error,
-                $"SKILL.md not found in directory: {skillDirectoryPath}",
+                $"SKILL.md or skill.md not found in directory: {skillDirectoryPath}",
                 skillDirectoryPath,
                 "LOADER002"));
 
@@ -163,7 +163,7 @@ public sealed class FileSystemSkillLoader : ISkillLoader
         {
             diagnostics.Add(CreateDiagnostic(
                 DiagnosticSeverity.Error,
-                $"SKILL.md not found in directory: {skillDirectoryPath}",
+                $"SKILL.md or skill.md not found in directory: {skillDirectoryPath}",
                 skillDirectoryPath,
                 "LOADER002"));
 
