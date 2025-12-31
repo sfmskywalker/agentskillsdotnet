@@ -234,7 +234,10 @@ Based on the [Agent Skills v1 specification](https://agentskills.io/specificatio
 1. **Name Field (Required)**
    - Must be present and non-empty
    - Length: 1-64 characters
-   - Pattern: lowercase letters (a-z), numbers (0-9), and hyphens only
+   - Pattern: Unicode lowercase letters, numbers (0-9), and hyphens only
+     - Supports Unicode letters from any script (Chinese, Russian, Arabic, etc.)
+     - Letters without case distinction (e.g., Chinese, Arabic) are allowed
+     - Only lowercase letters are allowed for scripts that have case (e.g., Latin, Cyrillic)
    - Cannot start or end with a hyphen
    - Cannot contain consecutive hyphens (`--`)
    - Must match the parent directory name exactly
