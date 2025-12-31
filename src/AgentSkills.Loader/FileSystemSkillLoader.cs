@@ -250,7 +250,7 @@ public sealed class FileSystemSkillLoader : ISkillLoader
     private string? ExtractFrontmatter(string skillFilePath)
     {
         using var reader = new StreamReader(skillFilePath);
-        
+
         var firstLine = reader.ReadLine();
         if (firstLine?.Trim() != FrontmatterDelimiter)
         {

@@ -1,6 +1,6 @@
+using System.Text;
 using AgentSkills.Loader;
 using AgentSkills.Prompts;
-using System.Text;
 
 namespace AgentSkills.Tests;
 
@@ -21,7 +21,7 @@ public class GoldenFileTests
         var solutionRoot = Path.GetFullPath(Path.Combine(assemblyLocation, "..", "..", "..", "..", ".."));
         _fixturesPath = Path.Combine(solutionRoot, "fixtures", "skills");
         _goldenFilesPath = Path.Combine(assemblyLocation, "..", "..", "..", "GoldenFiles");
-        
+
         _loader = new FileSystemSkillLoader();
         _renderer = new DefaultSkillPromptRenderer();
     }
@@ -50,7 +50,7 @@ public class GoldenFileTests
             .Where(m => m.Name is "example-skill" or "minimal-skill" or "complete-skill")
             .OrderBy(m => m.Name)
             .ToList();
-        
+
         Assert.NotEmpty(validSkills);
 
         // Act
@@ -163,10 +163,10 @@ public class GoldenFileTests
         {
             // Create directory if it doesn't exist
             Directory.CreateDirectory(Path.GetDirectoryName(goldenFilePath)!);
-            
+
             // Write the golden file
             File.WriteAllText(goldenFilePath, actual, Encoding.UTF8);
-            
+
             if (updateGoldenFiles)
             {
                 // In update mode, test passes after writing
@@ -192,7 +192,7 @@ public class GoldenFileTests
             message.AppendLine();
             message.AppendLine("Actual:");
             message.AppendLine(actual);
-            
+
             Assert.Fail(message.ToString());
         }
     }

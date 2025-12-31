@@ -1,6 +1,6 @@
-# Test Fixtures
+# Test Fixtures & Example Skills
 
-This directory contains skill fixtures used for testing AgentSkills.NET.
+This directory contains skill fixtures used for testing AgentSkills.NET and example skills demonstrating common patterns.
 
 ## Purpose
 
@@ -10,8 +10,9 @@ These fixtures provide consistent, realistic test data for:
 - Golden file tests
 - Performance tests
 - Regression tests
+- Documentation and examples
 
-## Valid Fixtures
+## Valid Example Skills
 
 ### example-skill
 A complete skill demonstrating all features of the skill specification.
@@ -41,6 +42,42 @@ A comprehensive skill with all metadata fields and resource directories.
 - Example files in each resource directory
 
 **Use for:** Resource discovery tests, complete workflow tests
+
+### email-sender
+A real-world example of an email composition skill.
+
+**Contains:**
+- Professional skill structure
+- Detailed instructions with examples
+- Error handling guidance
+- Best practices and templates
+- Security considerations
+
+**Use for:** Example of production-quality skill, documentation reference
+
+**Demonstrates:**
+- Multi-step workflow instructions
+- Input validation guidance
+- Error handling patterns
+- Professional formatting
+- Template examples
+
+### code-reviewer
+A systematic code review workflow skill.
+
+**Contains:**
+- Phased review process
+- Quality, logic, testing, security, and documentation checks
+- Structured feedback templates
+- Best practices and checklists
+
+**Use for:** Example of workflow-based skill, documentation reference
+
+**Demonstrates:**
+- Complex multi-phase workflows
+- Structured checklists
+- Feedback templates with severity levels
+- Comprehensive instructions
 
 ### large-instructions-skill
 A skill with extensive instructions for performance testing.

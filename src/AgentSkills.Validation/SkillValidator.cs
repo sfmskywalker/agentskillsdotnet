@@ -69,8 +69,8 @@ public sealed partial class SkillValidator : ISkillValidator
         }
 
         // Validate compatibility field length if present
-        if (manifest.AdditionalFields != null 
-            && manifest.AdditionalFields.TryGetValue("compatibility", out var compatibilityValue) 
+        if (manifest.AdditionalFields != null
+            && manifest.AdditionalFields.TryGetValue("compatibility", out var compatibilityValue)
             && compatibilityValue is string compatibility)
         {
             ValidateCompatibility(compatibility, skillPath, diagnostics);
@@ -108,7 +108,7 @@ public sealed partial class SkillValidator : ISkillValidator
         if (!NamePattern().IsMatch(name))
         {
             var reasons = new List<string>();
-            
+
             if (name.Any(char.IsUpper))
                 reasons.Add("contains uppercase letters");
             if (name.StartsWith('-') || name.EndsWith('-'))
@@ -119,7 +119,7 @@ public sealed partial class SkillValidator : ISkillValidator
                 reasons.Add("contains invalid characters");
 
             var reasonText = reasons.Any() ? $" ({string.Join(", ", reasons)})" : "";
-            
+
             diagnostics.Add(new SkillDiagnostic
             {
                 Severity = DiagnosticSeverity.Error,
@@ -202,7 +202,7 @@ public sealed partial class SkillValidator : ISkillValidator
     private void ValidateDirectoryName(string skillPath, string skillName, List<SkillDiagnostic> diagnostics)
     {
         var directoryName = Path.GetFileName(skillPath);
-        
+
         if (string.IsNullOrEmpty(directoryName))
         {
             // If we can't determine directory name, issue a warning

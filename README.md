@@ -18,18 +18,51 @@ AgentSkills.NET enables .NET-based AI agents to discover, load, and execute skil
 
 ## Quick Start
 
+**New to AgentSkills.NET?** Start here: **[📘 Getting Started Guide](docs/GETTING_STARTED.md)** - Get up and running in 15 minutes!
+
 ### Installation
 
 ```bash
-# Coming soon - NuGet packages will be available after initial release
-dotnet add package AgentSkills
+# Clone and build (NuGet packages coming soon)
+git clone https://github.com/sfmskywalker/agentskillsdotnet.git
+cd agentskillsdotnet
+dotnet build
 ```
 
 ### Basic Usage
 
 ```csharp
-// Coming soon - walking skeleton sample
-// scan → metadata → validate → render list → activate skill → render instructions
+using AgentSkills.Loader;
+using AgentSkills.Validation;
+using AgentSkills.Prompts;
+
+// Load skill metadata (fast path - no full content)
+var loader = new FileSystemSkillLoader();
+var (metadata, diagnostics) = loader.LoadMetadata("./skills");
+
+// Validate and filter
+var validator = new SkillValidator();
+var validMetadata = metadata
+    .Where(m => validator.ValidateMetadata(m).IsValid)
+    .ToList();
+
+// Render list for LLM (progressive disclosure - stage 1)
+var renderer = new DefaultSkillPromptRenderer();
+var listPrompt = renderer.RenderSkillList(validMetadata);
+
+// When LLM activates a skill, load full details (stage 2)
+var (skill, _) = loader.LoadSkill("./skills/chosen-skill");
+var detailsPrompt = renderer.RenderSkillDetails(skill);
+```
+
+### Try the Samples
+
+```bash
+# Run the walking skeleton sample
+dotnet run --project samples/AgentSkills.Sample/AgentSkills.Sample.csproj
+
+# Run the Microsoft Agent Framework integration sample
+dotnet run --project samples/AgentSkills.Sample.AgentFramework/AgentSkills.Sample.AgentFramework.csproj
 ```
 
 ## Project Status
@@ -38,10 +71,26 @@ dotnet add package AgentSkills
 
 ## Documentation
 
-- [Project Brief](docs/project_brief.md) - Architecture and design principles
-- [Contributing Guide](CONTRIBUTING.md) - How to contribute
-- [Agent Guidelines](AGENTS.md) - Guidelines for AI coding agents
-- [Architecture Decisions](docs/adr/) - ADRs documenting key decisions
+### Getting Started
+- **[📘 Getting Started Guide](docs/GETTING_STARTED.md)** - 15-minute quick start tutorial
+- **[✍️ Skill Authoring Guide](docs/SKILL_AUTHORING.md)** - How to write excellent skills
+- **[❓ FAQ](docs/FAQ.md)** - Frequently asked questions
+
+### Core Concepts
+- [🔒 Security & Safety Guide](docs/SECURITY_AND_SAFETY.md) - Security model and host guarantees
+- [📋 Project Brief](docs/project_brief.md) - Architecture and design principles
+- [📝 Prompt Rendering Guide](docs/PROMPT_RENDERING_GUIDE.md) - Progressive disclosure patterns
+- [💡 Usage Scenarios](docs/USAGE_SCENARIOS.md) - Real-world integration examples
+
+### API & Reference
+- [📚 Public API Reference](docs/PUBLIC_API.md) - Complete API documentation
+- [🧪 Testing Guide](docs/TESTING_GUIDE.md) - Testing strategy and best practices
+- [🔧 Troubleshooting Guide](docs/TROUBLESHOOTING.md) - Common issues and solutions
+
+### Contributing
+- [🤝 Contributing Guide](CONTRIBUTING.md) - How to contribute
+- [🤖 Agent Guidelines](AGENTS.md) - Guidelines for AI coding agents
+- [📐 Architecture Decisions](docs/adr/) - ADRs documenting key decisions
 
 ## Repository Structure
 
@@ -54,9 +103,27 @@ dotnet add package AgentSkills
 ├── tests/                # Test projects
 ├── samples/              # Sample applications
 ├── docs/                 # Documentation
-├── fixtures/             # Test fixtures and samples
+├── fixtures/             # Test fixtures and example skills
+│   └── skills/          # Example skills demonstrating patterns
 └── .github/workflows/    # CI/CD automation
 ```
+
+## Example Skills
+
+The [`fixtures/skills/`](fixtures/skills/) directory contains example skills demonstrating various patterns:
+
+**Complete Examples:**
+- [`example-skill`](fixtures/skills/example-skill/) - Basic skill structure
+- [`complete-skill`](fixtures/skills/complete-skill/) - All optional fields and resources
+- [`minimal-skill`](fixtures/skills/minimal-skill/) - Minimal valid skill
+- [`email-sender`](fixtures/skills/email-sender/) - Real-world email composition skill
+- [`code-reviewer`](fixtures/skills/code-reviewer/) - Systematic code review workflow
+
+**Edge Cases:**
+- [`special-chars-skill`](fixtures/skills/special-chars-skill/) - Special characters and Unicode
+- [`large-instructions-skill`](fixtures/skills/large-instructions-skill/) - Performance testing
+
+See the [fixtures README](fixtures/README.md) for a complete catalog.
 
 ## Building
 

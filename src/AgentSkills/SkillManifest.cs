@@ -41,6 +41,6 @@ public sealed class SkillManifest
     /// Gets additional fields that were present in the YAML frontmatter but not mapped to known properties.
     /// This allows for extensibility and forward compatibility.
     /// </summary>
-    public IReadOnlyDictionary<string, object?> AdditionalFields { get; init; } = 
+    public IReadOnlyDictionary<string, object?> AdditionalFields { get; init; } =
         new Dictionary<string, object?>();
 }

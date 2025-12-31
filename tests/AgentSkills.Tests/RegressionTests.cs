@@ -35,8 +35,8 @@ public class RegressionTests
 
         // Should have diagnostics about parsing failure
         Assert.NotEmpty(diagnostics);
-        Assert.Contains(diagnostics, d => 
-            d.Severity == DiagnosticSeverity.Error && 
+        Assert.Contains(diagnostics, d =>
+            d.Severity == DiagnosticSeverity.Error &&
             (d.Code?.StartsWith("LOADER") ?? false));
     }
 
@@ -187,10 +187,10 @@ public class RegressionTests
         if (skill != null)
         {
             var result = _validator.Validate(skill);
-            
+
             // Should have a warning about directory mismatch (VAL010)
-            Assert.Contains(result.Diagnostics, d => 
-                d.Code == "VAL010" && 
+            Assert.Contains(result.Diagnostics, d =>
+                d.Code == "VAL010" &&
                 d.Severity == DiagnosticSeverity.Error);
         }
     }
@@ -245,7 +245,7 @@ public class RegressionTests
     {
         // Regression: Special characters in YAML strings should be preserved
         var skillPath = Path.Combine(_fixturesPath, "special-chars-skill");
-        
+
         // The fixture is required for this regression test; fail clearly if it's missing.
         Assert.True(Directory.Exists(skillPath), $"Fixture not available for test: {skillPath}");
 
@@ -254,7 +254,7 @@ public class RegressionTests
         // Should load successfully
         Assert.NotNull(skill);
         Assert.Empty(diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error));
-        
+
         // Special characters should be preserved
         Assert.Contains("\"", skill.Manifest.Description);
         Assert.Contains("'", skill.Manifest.Description);
@@ -265,7 +265,7 @@ public class RegressionTests
     {
         // Regression: Unicode characters should be preserved throughout
         var skillPath = Path.Combine(_fixturesPath, "special-chars-skill");
-        
+
         // The fixture is required for this regression test; fail clearly if it's missing.
         Assert.True(Directory.Exists(skillPath), $"Fixture not available for test: {skillPath}");
 
@@ -287,7 +287,7 @@ public class RegressionTests
     {
         // Regression: Resources should not be automatically loaded or executed
         var skillPath = Path.Combine(_fixturesPath, "complete-skill");
-        
+
         // The fixture is required for this regression test; fail clearly if it's missing.
         Assert.True(Directory.Exists(skillPath), $"Fixture not available for test: {skillPath}");
 
@@ -295,11 +295,11 @@ public class RegressionTests
 
         // Should load successfully but not execute anything
         Assert.NotNull(skill);
-        
+
         // Verify directories exist but content not loaded
         var scriptsPath = Path.Combine(skillPath, "scripts");
         var referencesPath = Path.Combine(skillPath, "references");
-        
+
         Assert.True(Directory.Exists(scriptsPath));
         Assert.True(Directory.Exists(referencesPath));
     }
@@ -316,7 +316,7 @@ public class RegressionTests
 
         // Filter diagnostics explicitly before iterating
         var relevantDiagnostics = skillSet.Diagnostics
-            .Where(d => d.Code != null && 
+            .Where(d => d.Code != null &&
                         (d.Code.StartsWith("VAL") || d.Code.StartsWith("LOADER")));
 
         foreach (var diagnostic in relevantDiagnostics)
@@ -336,7 +336,7 @@ public class RegressionTests
         if (skill != null)
         {
             var result = _validator.Validate(skill);
-            
+
             foreach (var error in result.Errors)
             {
                 // Messages should be non-empty and specific
