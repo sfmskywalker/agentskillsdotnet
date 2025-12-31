@@ -59,9 +59,9 @@ public class PerformanceTests
         var skillCount = metadata.Count;
         var avgTimePerSkill = sw.ElapsedMilliseconds / (double)skillCount;
 
-        // Each skill should take less than 100ms to scan metadata
-        Assert.True(avgTimePerSkill < 100, 
-            $"Average time per skill: {avgTimePerSkill:F2}ms, expected < 100ms");
+        // Each skill should take less than 1ms to scan metadata
+        Assert.True(avgTimePerSkill < 1, 
+            $"Average time per skill: {avgTimePerSkill:F2}ms, expected < 1ms");
         
         // Log for diagnostics
         Console.WriteLine($"Loaded {skillCount} skills in {sw.ElapsedMilliseconds}ms");
@@ -140,11 +140,8 @@ public class PerformanceTests
         // Test rendering a skill with large instructions
         var skillPath = Path.Combine(_fixturesPath, "large-instructions-skill");
         
-        // Skip if fixture doesn't exist yet
-        if (!Directory.Exists(skillPath))
-        {
-            return;
-        }
+        // The fixture is required for this performance test; fail clearly if it's missing.
+        Assert.True(Directory.Exists(skillPath), $"Fixture not available for test: {skillPath}");
 
         var (skill, _) = _loader.LoadSkill(skillPath);
         Assert.NotNull(skill);

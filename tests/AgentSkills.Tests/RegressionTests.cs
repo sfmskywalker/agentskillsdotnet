@@ -31,7 +31,7 @@ public class RegressionTests
         var skillPath = Path.Combine(_fixturesPath, "malformed-yaml");
 
         // Act & Assert - Should not throw
-        var (skill, diagnostics) = _loader.LoadSkill(skillPath);
+        var (_, diagnostics) = _loader.LoadSkill(skillPath);
 
         // Should have diagnostics about parsing failure
         Assert.NotEmpty(diagnostics);
@@ -47,7 +47,7 @@ public class RegressionTests
         var skillPath = Path.Combine(_fixturesPath, "unclosed-frontmatter");
 
         // Act & Assert - Should not throw
-        var (skill, diagnostics) = _loader.LoadSkill(skillPath);
+        var (_, diagnostics) = _loader.LoadSkill(skillPath);
 
         Assert.NotEmpty(diagnostics);
         Assert.Contains(diagnostics, d => d.Severity == DiagnosticSeverity.Error);
@@ -60,7 +60,7 @@ public class RegressionTests
         var skillPath = Path.Combine(_fixturesPath, "no-frontmatter");
 
         // Act & Assert - Should not throw
-        var (skill, diagnostics) = _loader.LoadSkill(skillPath);
+        var (_, diagnostics) = _loader.LoadSkill(skillPath);
 
         Assert.NotEmpty(diagnostics);
     }
@@ -72,7 +72,7 @@ public class RegressionTests
         var skillPath = Path.Combine(_fixturesPath, "triple-dash-in-body");
 
         // Act
-        var (skill, diagnostics) = _loader.LoadSkill(skillPath);
+        var (skill, _) = _loader.LoadSkill(skillPath);
 
         // Assert - Should load successfully with triple dash in body
         Assert.NotNull(skill);
@@ -246,10 +246,8 @@ public class RegressionTests
         // Regression: Special characters in YAML strings should be preserved
         var skillPath = Path.Combine(_fixturesPath, "special-chars-skill");
         
-        if (!Directory.Exists(skillPath))
-        {
-            return; // Skip if fixture not available
-        }
+        // The fixture is required for this regression test; fail clearly if it's missing.
+        Assert.True(Directory.Exists(skillPath), $"Fixture not available for test: {skillPath}");
 
         var (skill, diagnostics) = _loader.LoadSkill(skillPath);
 
@@ -268,10 +266,8 @@ public class RegressionTests
         // Regression: Unicode characters should be preserved throughout
         var skillPath = Path.Combine(_fixturesPath, "special-chars-skill");
         
-        if (!Directory.Exists(skillPath))
-        {
-            return; // Skip if fixture not available
-        }
+        // The fixture is required for this regression test; fail clearly if it's missing.
+        Assert.True(Directory.Exists(skillPath), $"Fixture not available for test: {skillPath}");
 
         var (skill, _) = _loader.LoadSkill(skillPath);
 
@@ -292,10 +288,8 @@ public class RegressionTests
         // Regression: Resources should not be automatically loaded or executed
         var skillPath = Path.Combine(_fixturesPath, "complete-skill");
         
-        if (!Directory.Exists(skillPath))
-        {
-            return; // Skip if fixture not available
-        }
+        // The fixture is required for this regression test; fail clearly if it's missing.
+        Assert.True(Directory.Exists(skillPath), $"Fixture not available for test: {skillPath}");
 
         var (skill, _) = _loader.LoadSkill(skillPath);
 
@@ -320,14 +314,15 @@ public class RegressionTests
         // Regression: All diagnostics should include path for IDE integration
         var skillSet = _loader.LoadSkillSet(_fixturesPath);
 
-        foreach (var diagnostic in skillSet.Diagnostics)
+        // Filter diagnostics explicitly before iterating
+        var relevantDiagnostics = skillSet.Diagnostics
+            .Where(d => d.Code != null && 
+                        (d.Code.StartsWith("VAL") || d.Code.StartsWith("LOADER")));
+
+        foreach (var diagnostic in relevantDiagnostics)
         {
-            // Path should be set (unless it's a system-level diagnostic)
-            if (diagnostic.Code != null && 
-                (diagnostic.Code.StartsWith("VAL") || diagnostic.Code.StartsWith("LOADER")))
-            {
-                Assert.NotNull(diagnostic.Path);
-            }
+            // Path should be set for validation and loader diagnostics
+            Assert.NotNull(diagnostic.Path);
         }
     }
 
