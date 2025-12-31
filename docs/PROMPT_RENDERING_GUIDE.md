@@ -197,9 +197,12 @@ await SendToLLM(listPrompt);
 var chosenSkillName = await GetLLMChoice();
 
 // Stage 2: Show full details
-var skill = loader.LoadSkill($"{skillsPath}/{chosenSkillName}");
-var detailsPrompt = renderer.RenderSkillDetails(skill);
-await SendToLLM(detailsPrompt);
+var (skill, _) = loader.LoadSkill($"{skillsPath}/{chosenSkillName}");
+if (skill != null)
+{
+    var detailsPrompt = renderer.RenderSkillDetails(skill);
+    await SendToLLM(detailsPrompt);
+}
 ```
 
 ### Pattern 2: Filtered Lists
