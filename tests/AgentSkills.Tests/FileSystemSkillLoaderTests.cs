@@ -421,7 +421,7 @@ public class FileSystemSkillLoaderTests
         // Assert
         Assert.NotEmpty(metadata);
         Assert.Contains(metadata, m => m.Name == "lowercase-skill");
-        
+
         var lowercaseMetadata = metadata.First(m => m.Name == "lowercase-skill");
         Assert.Equal("A skill with lowercase skill.md filename for testing", lowercaseMetadata.Description);
         Assert.Equal("1.0.0", lowercaseMetadata.Version);
@@ -450,15 +450,15 @@ public class FileSystemSkillLoaderTests
         // Assert
         Assert.NotNull(skillSet);
         Assert.NotEmpty(skillSet.Skills);
-        
+
         // Should include the skill with both filenames
         Assert.Contains(skillSet.Skills, s => s.Manifest.Name == "both-filenames-uppercase");
-        
+
         // Should NOT include the lowercase version as a separate skill
         Assert.DoesNotContain(skillSet.Skills, s => s.Manifest.Name == "both-filenames-lowercase");
-        
+
         // Should only have one skill from that directory
-        var bothFilenamesSkills = skillSet.Skills.Where(s => 
+        var bothFilenamesSkills = skillSet.Skills.Where(s =>
             s.Manifest.Name.StartsWith("both-filenames")).ToList();
         Assert.Single(bothFilenamesSkills);
     }

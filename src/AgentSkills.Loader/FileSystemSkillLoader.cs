@@ -224,11 +224,11 @@ public sealed class FileSystemSkillLoader : ISkillLoader
             // Find directories containing SKILL.md or skill.md files
             var uppercaseFiles = Directory.GetFiles(directoryPath, SkillFileName, SearchOption.AllDirectories);
             var lowercaseFiles = Directory.GetFiles(directoryPath, SkillFileNameLowercase, SearchOption.AllDirectories);
-            
+
             // Combine and deduplicate: prefer SKILL.md when both exist in same directory
             var directories = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var result = new List<string>();
-            
+
             // First, add all uppercase files
             foreach (var file in uppercaseFiles)
             {
@@ -236,7 +236,7 @@ public sealed class FileSystemSkillLoader : ISkillLoader
                 directories.Add(dir);
                 result.Add(file);
             }
-            
+
             // Then, add lowercase files only if their directory doesn't already have an uppercase file
             foreach (var file in lowercaseFiles)
             {
@@ -246,7 +246,7 @@ public sealed class FileSystemSkillLoader : ISkillLoader
                     result.Add(file);
                 }
             }
-            
+
             return result;
         }
         catch (UnauthorizedAccessException)
@@ -273,13 +273,13 @@ public sealed class FileSystemSkillLoader : ISkillLoader
         {
             return uppercaseFile;
         }
-        
+
         var lowercaseFile = Path.Combine(directory, SkillFileNameLowercase);
         if (File.Exists(lowercaseFile))
         {
             return lowercaseFile;
         }
-        
+
         return null;
     }
 
