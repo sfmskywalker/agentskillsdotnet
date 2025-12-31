@@ -190,4 +190,17 @@ public class SkillPromptBuilderTests
         // Version should not be included when IncludeVersion is false
         Assert.DoesNotContain("1.0.0", result);
     }
+
+    [Fact]
+    public void Build_WithNoConfiguration_ReturnsEmptyString()
+    {
+        // Arrange
+        var builder = new SkillPromptBuilder();
+
+        // Act
+        var result = builder.Build();
+
+        // Assert
+        Assert.Equal(string.Empty, result);
+    }
 }
