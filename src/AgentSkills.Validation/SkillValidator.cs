@@ -14,9 +14,12 @@ public sealed partial class SkillValidator : ISkillValidator
     private const int DescriptionMaxLength = 1024;
     private const int CompatibilityMaxLength = 500;
 
-    // Name validation pattern: lowercase letters, numbers, hyphens only
+    // Name validation pattern: Unicode lowercase letters, numbers, hyphens only
     // Cannot start/end with hyphen, no consecutive hyphens
-    [GeneratedRegex(@"^[a-z0-9]+(-[a-z0-9]+)*$")]
+    // \p{Ll} matches lowercase letters (e.g., a-z, а-я, etc.)
+    // \p{Lo} matches other letters without case (e.g., Chinese, Arabic, Hebrew, etc.)
+    // \p{Nd} matches any decimal digit in any Unicode script
+    [GeneratedRegex(@"^[\p{Ll}\p{Lo}\p{Nd}]+([-][\p{Ll}\p{Lo}\p{Nd}]+)*$")]
     private static partial Regex NamePattern();
 
     /// <inheritdoc/>
@@ -100,17 +103,19 @@ public sealed partial class SkillValidator : ISkillValidator
                 "VAL002"));
         }
 
-        // Check pattern: lowercase, numbers, hyphens only, no leading/trailing/consecutive hyphens
+        // Check pattern: lowercase Unicode letters, numbers, hyphens only, no leading/trailing/consecutive hyphens
         if (!NamePattern().IsMatch(name))
         {
             List<string> reasons = [];
 
-            if (name.Any(char.IsUpper))
+            // Check for uppercase letters (including Unicode uppercase)
+            if (name.Any(c => char.IsLetter(c) && char.IsUpper(c)))
                 reasons.Add("contains uppercase letters");
             if (name.StartsWith('-') || name.EndsWith('-'))
                 reasons.Add("starts or ends with hyphen");
             if (name.Contains("--"))
                 reasons.Add("contains consecutive hyphens");
+            // Check for invalid characters (anything that's not a letter, digit, or hyphen)
             if (name.Any(c => !char.IsLetterOrDigit(c) && c != '-'))
                 reasons.Add("contains invalid characters");
 
@@ -118,7 +123,7 @@ public sealed partial class SkillValidator : ISkillValidator
 
             diagnostics.Add(CreateDiagnostic(
                 DiagnosticSeverity.Error,
-                $"Field 'name' must contain only lowercase letters, numbers, and hyphens; cannot start/end with hyphen or have consecutive hyphens{reasonText}",
+                $"Field 'name' must contain only lowercase letters (any Unicode script), numbers, and hyphens; cannot start/end with hyphen or have consecutive hyphens{reasonText}",
                 skillPath,
                 "VAL003"));
         }

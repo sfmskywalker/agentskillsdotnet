@@ -519,4 +519,255 @@ public class SkillValidatorTests
         // Assert
         Assert.All(result.Diagnostics, d => Assert.NotNull(d.Code));
     }
+
+    [Fact]
+    public void Validate_ChineseCharacters_ReturnsNoErrors()
+    {
+        // Arrange
+        var skill = new Skill
+        {
+            Manifest = new SkillManifest
+            {
+                Name = "技能",
+                Description = "A skill with Chinese characters in the name"
+            },
+            Instructions = "# Instructions",
+            Path = Path.Combine(_fixturesPath, "技能")
+        };
+
+        // Act
+        var result = _validator.Validate(skill);
+
+        // Assert
+        Assert.True(result.IsValid, $"Chinese skill name should be valid. Errors: {string.Join(", ", result.Errors.Select(e => e.Message))}");
+        Assert.Empty(result.Errors);
+    }
+
+    [Fact]
+    public void Validate_RussianCharacters_ReturnsNoErrors()
+    {
+        // Arrange
+        var skill = new Skill
+        {
+            Manifest = new SkillManifest
+            {
+                Name = "навык",
+                Description = "A skill with Russian characters in the name"
+            },
+            Instructions = "# Instructions",
+            Path = Path.Combine(_fixturesPath, "навык")
+        };
+
+        // Act
+        var result = _validator.Validate(skill);
+
+        // Assert
+        Assert.True(result.IsValid, $"Russian skill name should be valid. Errors: {string.Join(", ", result.Errors.Select(e => e.Message))}");
+        Assert.Empty(result.Errors);
+    }
+
+    [Fact]
+    public void Validate_ArabicCharacters_ReturnsNoErrors()
+    {
+        // Arrange
+        var skill = new Skill
+        {
+            Manifest = new SkillManifest
+            {
+                Name = "مهارة",
+                Description = "A skill with Arabic characters in the name"
+            },
+            Instructions = "# Instructions",
+            Path = Path.Combine(_fixturesPath, "مهارة")
+        };
+
+        // Act
+        var result = _validator.Validate(skill);
+
+        // Assert
+        Assert.True(result.IsValid, $"Arabic skill name should be valid. Errors: {string.Join(", ", result.Errors.Select(e => e.Message))}");
+        Assert.Empty(result.Errors);
+    }
+
+    [Fact]
+    public void Validate_ChineseWithHyphens_ReturnsNoErrors()
+    {
+        // Arrange
+        var skill = new Skill
+        {
+            Manifest = new SkillManifest
+            {
+                Name = "技能-测试",
+                Description = "A skill with Chinese characters and hyphens"
+            },
+            Instructions = "# Instructions",
+            Path = Path.Combine(_fixturesPath, "技能-测试")
+        };
+
+        // Act
+        var result = _validator.Validate(skill);
+
+        // Assert
+        Assert.True(result.IsValid, $"Chinese skill name with hyphens should be valid. Errors: {string.Join(", ", result.Errors.Select(e => e.Message))}");
+        Assert.Empty(result.Errors);
+    }
+
+    [Fact]
+    public void Validate_UppercaseRussianCharacters_ReturnsError()
+    {
+        // Arrange
+        var skill = new Skill
+        {
+            Manifest = new SkillManifest
+            {
+                Name = "НАВЫК",
+                Description = "A skill with uppercase Russian characters"
+            },
+            Instructions = "# Instructions",
+            Path = "/path/to/skill"
+        };
+
+        // Act
+        var result = _validator.Validate(skill);
+
+        // Assert
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, d => d.Code == "VAL003");
+        Assert.Contains(result.Errors, d => d.Message.Contains("uppercase"));
+    }
+
+    [Fact]
+    public void Validate_MixedScriptName_ReturnsNoErrors()
+    {
+        // Arrange
+        var skill = new Skill
+        {
+            Manifest = new SkillManifest
+            {
+                Name = "skill-技能-навык",
+                Description = "A skill with mixed scripts (English, Chinese, Russian)"
+            },
+            Instructions = "# Instructions",
+            Path = "/path/to/skill-技能-навык"
+        };
+
+        // Act
+        var result = _validator.Validate(skill);
+
+        // Assert
+        Assert.True(result.IsValid, $"Mixed script skill name should be valid. Errors: {string.Join(", ", result.Errors.Select(e => e.Message))}");
+        Assert.Empty(result.Errors);
+    }
+
+    [Fact]
+    public void Validate_UnicodeWithConsecutiveHyphens_ReturnsError()
+    {
+        // Arrange
+        var skill = new Skill
+        {
+            Manifest = new SkillManifest
+            {
+                Name = "技能--测试",
+                Description = "A skill with consecutive hyphens"
+            },
+            Instructions = "# Instructions",
+            Path = "/path/to/skill"
+        };
+
+        // Act
+        var result = _validator.Validate(skill);
+
+        // Assert
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, d => d.Code == "VAL003");
+        Assert.Contains(result.Errors, d => d.Message.Contains("consecutive hyphens"));
+    }
+
+    [Fact]
+    public void Validate_UnicodeStartingWithHyphen_ReturnsError()
+    {
+        // Arrange
+        var skill = new Skill
+        {
+            Manifest = new SkillManifest
+            {
+                Name = "-技能",
+                Description = "A skill starting with hyphen"
+            },
+            Instructions = "# Instructions",
+            Path = "/path/to/skill"
+        };
+
+        // Act
+        var result = _validator.Validate(skill);
+
+        // Assert
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, d => d.Code == "VAL003");
+    }
+
+    [Fact]
+    public void Validate_UnicodeEndingWithHyphen_ReturnsError()
+    {
+        // Arrange
+        var skill = new Skill
+        {
+            Manifest = new SkillManifest
+            {
+                Name = "技能-",
+                Description = "A skill ending with hyphen"
+            },
+            Instructions = "# Instructions",
+            Path = "/path/to/skill"
+        };
+
+        // Act
+        var result = _validator.Validate(skill);
+
+        // Assert
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, d => d.Code == "VAL003");
+    }
+
+    [Fact]
+    public void Validate_UnicodeUppercaseChinese_ReturnsNoErrors()
+    {
+        // Note: Chinese characters don't have uppercase/lowercase distinction
+        // so this should be valid
+        var skill = new Skill
+        {
+            Manifest = new SkillManifest
+            {
+                Name = "技能",
+                Description = "Chinese characters don't have case"
+            },
+            Instructions = "# Instructions",
+            Path = "/path/to/技能"
+        };
+
+        // Act
+        var result = _validator.Validate(skill);
+
+        // Assert
+        Assert.True(result.IsValid);
+    }
+
+    [Fact]
+    public void ValidateMetadata_UnicodeSkill_ReturnsNoErrors()
+    {
+        // Arrange
+        var metadata = new SkillMetadata
+        {
+            Name = "技能",
+            Description = "A skill with Unicode characters",
+            Path = "/path/to/技能"
+        };
+
+        // Act
+        var result = _validator.ValidateMetadata(metadata);
+
+        // Assert
+        Assert.True(result.IsValid);
+        Assert.Empty(result.Errors);
+    }
 }
