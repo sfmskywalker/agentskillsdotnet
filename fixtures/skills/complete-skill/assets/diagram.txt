@@ -1,0 +1,5 @@
+ASCII diagram placeholder for testing asset discovery.
+
++--------+     +--------+
+| Agent  |---->| Skill  |
++--------+     +--------+

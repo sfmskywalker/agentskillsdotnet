@@ -1,0 +1,10 @@
+﻿# Skill: minimal-skill
+
+**Description:** A minimal skill with only required fields
+
+## Instructions
+
+# Minimal Skill
+
+This skill has only the required fields in its manifest.
+

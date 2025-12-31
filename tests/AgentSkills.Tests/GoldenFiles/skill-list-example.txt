@@ -1,0 +1,16 @@
+﻿# Available Skills
+
+The following skills are available. To use a skill, activate it by name.
+
+## example-skill
+
+**Description:** An example skill for testing and demonstration
+
+**Version:** 1.0.0
+
+**Author:** AgentSkills.NET
+
+**Tags:** example, demo
+
+---
+
