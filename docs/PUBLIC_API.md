@@ -379,9 +379,12 @@ var listPrompt = renderer.RenderSkillList(metadata);
 // Send listPrompt to LLM
 
 // When LLM activates a skill, render full details (step 2)
-var skill = loader.LoadSkill("/path/to/skills/chosen-skill");
-var detailsPrompt = renderer.RenderSkillDetails(skill);
-// Send detailsPrompt to LLM
+var (skill, diagnostics) = loader.LoadSkill("/path/to/skills/chosen-skill");
+if (skill != null)
+{
+    var detailsPrompt = renderer.RenderSkillDetails(skill);
+    // Send detailsPrompt to LLM
+}
 ```
 
 #### Resource Policy Implementations
