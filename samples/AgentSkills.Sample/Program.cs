@@ -1,6 +1,7 @@
 using AgentSkills;
 using AgentSkills.Loader;
 using AgentSkills.Validation;
+using AgentSkills.Prompts;
 
 // AgentSkills.NET Sample Application
 // This is a walking skeleton that demonstrates:
@@ -88,6 +89,25 @@ foreach (var (meta, result) in validationResults.Where(r => r.Result.IsValid))
     Console.WriteLine();
 }
 
+// Step 4a: Demonstrate prompt rendering for LLMs
+Console.WriteLine("Step 4a: Render skill list as prompt (progressive disclosure):");
+Console.WriteLine("---------------------------------------------------------------");
+var promptRenderer = new DefaultSkillPromptRenderer();
+var validMetadata = validationResults.Where(r => r.Result.IsValid).Select(r => r.Meta).ToList();
+
+if (validMetadata.Any())
+{
+    var skillListPrompt = promptRenderer.RenderSkillList(validMetadata);
+    Console.WriteLine("=== Prompt for LLM (Skill List) ===");
+    Console.WriteLine(skillListPrompt);
+    Console.WriteLine("=== End of Prompt ===");
+}
+else
+{
+    Console.WriteLine("No valid skills to render.");
+}
+Console.WriteLine();
+
 // Step 5: Load full skill set
 Console.WriteLine("Step 5: Loading full skill set...");
 var skillSet = loader.LoadSkillSet(skillsPath);
@@ -169,6 +189,42 @@ if (skillSet.Skills.Any())
         : firstSkill.Instructions;
     Console.WriteLine(preview);
     Console.WriteLine();
+
+    // Step 8a: Demonstrate full skill prompt rendering
+    Console.WriteLine("Step 8a: Render full skill details as prompt:");
+    Console.WriteLine("----------------------------------------------");
+    var skillDetailsPrompt = promptRenderer.RenderSkillDetails(firstSkill);
+    Console.WriteLine("=== Prompt for LLM (Full Skill Details) ===");
+    Console.WriteLine(skillDetailsPrompt);
+    Console.WriteLine("=== End of Prompt ===");
+    Console.WriteLine();
+
+    // Step 8b: Demonstrate resource policy
+    Console.WriteLine("Step 8b: Demonstrate resource policies:");
+    Console.WriteLine("----------------------------------------");
+    
+    Console.WriteLine("Without allowed-tools (using ExcludeAllResourcePolicy):");
+    var restrictiveOptions = new PromptRenderOptions 
+    { 
+        ResourcePolicy = ExcludeAllResourcePolicy.Instance 
+    };
+    var restrictedPrompt = promptRenderer.RenderSkillDetails(firstSkill, restrictiveOptions);
+    var hasAllowedTools = restrictedPrompt.Contains("Allowed Tools");
+    Console.WriteLine($"  Contains 'Allowed Tools': {hasAllowedTools}");
+    Console.WriteLine();
+
+    Console.WriteLine("With custom visibility options:");
+    var customOptions = new PromptRenderOptions
+    {
+        IncludeVersion = false,
+        IncludeAuthor = false
+    };
+    var customPrompt = promptRenderer.RenderSkillDetails(firstSkill, customOptions);
+    var hasVersion = customPrompt.Contains("Version:");
+    var hasAuthor = customPrompt.Contains("Author:");
+    Console.WriteLine($"  Contains 'Version': {hasVersion}");
+    Console.WriteLine($"  Contains 'Author': {hasAuthor}");
+    Console.WriteLine();
 }
 else
 {
@@ -185,9 +241,12 @@ Console.WriteLine("  1. ✓ Scanning for skills in a directory");
 Console.WriteLine("  2. ✓ Loading skill metadata (fast, no full content)");
 Console.WriteLine("  3. ✓ Validating skill metadata against v1 specification");
 Console.WriteLine("  4. ✓ Rendering a list of available skills");
+Console.WriteLine("  4a. ✓ Rendering skill list as LLM prompt (progressive disclosure)");
 Console.WriteLine("  5. ✓ Loading full skill set with diagnostics");
 Console.WriteLine("  6. ✓ Activating a specific skill");
 Console.WriteLine("  7. ✓ Validating the full skill");
 Console.WriteLine("  8. ✓ Rendering full skill instructions");
+Console.WriteLine("  8a. ✓ Rendering full skill details as LLM prompt");
+Console.WriteLine("  8b. ✓ Applying resource policies to control visibility");
 
 

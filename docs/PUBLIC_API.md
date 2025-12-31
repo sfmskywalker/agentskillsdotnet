@@ -329,4 +329,134 @@ If using GitHub Actions workflow commands (`::error`, `::warning`), you must esc
 
 ## AgentSkills.Prompts
 
-*Coming soon*
+The prompts package provides rendering capabilities for transforming skills into LLM-ready prompts following progressive disclosure pattern.
+
+### Interfaces
+
+#### `ISkillPromptRenderer`
+Interface for rendering skill information as prompts for LLMs.
+
+**Methods:**
+- `string RenderSkillList(IEnumerable<SkillMetadata> metadata, PromptRenderOptions? options = null)` - Renders a summary list of multiple skills showing only key metadata. Use this for presenting available skills to the LLM.
+- `string RenderSkillDetails(Skill skill, PromptRenderOptions? options = null)` - Renders full details for a single skill including instructions and resources. Use this when the LLM activates a specific skill.
+
+**Progressive Disclosure Pattern:**
+The renderer implements progressive disclosure to minimize token usage and improve relevance:
+1. First, present skills using `RenderSkillList` - shows only name, description, and key metadata
+2. When a skill is activated, use `RenderSkillDetails` - shows full instructions and all metadata
+
+#### `IResourcePolicy`
+Policy interface for controlling visibility of skill resources and metadata in prompts.
+
+**Methods:**
+- `bool ShouldIncludeResource(SkillResource resource, Skill skill)` - Determines whether a specific resource should be included in the prompt. Returns true to include, false to redact.
+- `bool ShouldIncludeAllowedTools(Skill skill)` - Determines whether allowed-tools metadata should be included in the prompt. Returns true to include, false to redact.
+
+**Use Cases:**
+- Security policies: Prevent exposure of sensitive resources
+- Token optimization: Exclude large or irrelevant resources
+- Conditional access: Apply runtime policies based on skill content
+
+### Implementations
+
+#### `DefaultSkillPromptRenderer`
+Default implementation of `ISkillPromptRenderer` that produces clear, structured Markdown prompts.
+
+**Features:**
+- Renders skill lists with name, description, version, author, and tags
+- Renders full skill details with complete instructions
+- Supports optional metadata inclusion via `PromptRenderOptions`
+- Integrates with resource policies for controlled visibility
+- Produces clean Markdown output optimized for LLM consumption
+
+**Usage:**
+```csharp
+var renderer = new DefaultSkillPromptRenderer();
+
+// Render list of skills (progressive disclosure - step 1)
+var metadata = loader.LoadMetadata("/path/to/skills");
+var listPrompt = renderer.RenderSkillList(metadata);
+// Send listPrompt to LLM
+
+// When LLM activates a skill, render full details (step 2)
+var (skill, diagnostics) = loader.LoadSkill("/path/to/skills/chosen-skill");
+if (skill != null)
+{
+    var detailsPrompt = renderer.RenderSkillDetails(skill);
+    // Send detailsPrompt to LLM
+}
+```
+
+#### Resource Policy Implementations
+
+##### `IncludeAllResourcePolicy`
+A permissive resource policy that includes all resources and metadata.
+
+**Usage:**
+```csharp
+var options = new PromptRenderOptions
+{
+    ResourcePolicy = IncludeAllResourcePolicy.Instance
+};
+var prompt = renderer.RenderSkillDetails(skill, options);
+```
+
+##### `ExcludeAllResourcePolicy`
+A restrictive resource policy that excludes all resources and sensitive metadata.
+
+**Usage:**
+```csharp
+var options = new PromptRenderOptions
+{
+    ResourcePolicy = ExcludeAllResourcePolicy.Instance
+};
+var prompt = renderer.RenderSkillDetails(skill, options);
+// allowed-tools will not be included
+```
+
+##### `ResourceTypeFilterPolicy`
+A configurable resource policy that filters resources by type.
+
+**Usage:**
+```csharp
+// Only include references and assets, exclude scripts
+var policy = new ResourceTypeFilterPolicy(new[] { "reference", "asset" });
+var options = new PromptRenderOptions { ResourcePolicy = policy };
+var prompt = renderer.RenderSkillDetails(skill, options);
+```
+
+### Options and Configuration
+
+#### `PromptRenderOptions`
+Options for controlling how skills are rendered as prompts.
+
+**Properties:**
+- `IResourcePolicy? ResourcePolicy` - The resource policy for controlling resource visibility. If null, all resources are included by default.
+- `bool IncludeVersion` - Whether to include version information in rendered output. Default is true.
+- `bool IncludeAuthor` - Whether to include author information in rendered output. Default is true.
+- `bool IncludeTags` - Whether to include tags in rendered output. Default is true.
+- `bool IncludeAllowedTools` - Whether to include allowed-tools in rendered output. Default is true.
+
+**Usage:**
+```csharp
+var options = new PromptRenderOptions
+{
+    IncludeVersion = false,
+    IncludeAuthor = false,
+    IncludeTags = true,
+    ResourcePolicy = ExcludeAllResourcePolicy.Instance
+};
+var prompt = renderer.RenderSkillDetails(skill, options);
+```
+
+### Design Principles
+
+1. **Progressive Disclosure**: Always show summaries first, full details only when activated.
+2. **Policy-Based Security**: Resource visibility is controlled by pluggable policies, not hardcoded rules.
+3. **Token Optimization**: Minimize token usage by showing only relevant information at each stage.
+4. **Host Control**: Hosts decide what to expose through policies and options, not the library.
+5. **Clean Output**: Produces well-formatted Markdown that's easy for both LLMs and humans to read.
+6. **No Side Effects**: Rendering is a pure function with no side effects or state changes.
+
+---
+
