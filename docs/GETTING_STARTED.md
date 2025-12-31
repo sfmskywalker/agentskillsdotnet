@@ -87,7 +87,7 @@ foreach (var meta in metadata)
 }
 
 // Load full skill when needed
-var (skill, loadDiagnostics) = loader.LoadSkill("./my-skills/hello-world");
+var (skill, _) = loader.LoadSkill("./my-skills/hello-world");
 if (skill != null)
 {
     Console.WriteLine($"\nActivated: {skill.Manifest.Name}");
