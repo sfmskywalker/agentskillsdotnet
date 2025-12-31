@@ -24,7 +24,7 @@ public sealed class DefaultSkillPromptRenderer : ISkillPromptRenderer
         builder.AppendLine("The following skills are available. To use a skill, activate it by name.");
         builder.AppendLine();
 
-        // Convert to list only once for enumeration
+        // Avoid unnecessary enumeration by using IReadOnlyList if available
         var metadataList = metadata as IReadOnlyList<SkillMetadata> ?? metadata.ToList();
         if (metadataList.Count == 0)
         {
