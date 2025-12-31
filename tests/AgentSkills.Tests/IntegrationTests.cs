@@ -174,4 +174,29 @@ public class IntegrationTests
         var metadata = skill.Metadata;
         Assert.Equal(skill.Manifest.Name, metadata.Name);
     }
+
+    [Fact]
+    public void FullPipeline_LoadSkillWithUnexpectedFields_ValidatorCatchesError()
+    {
+        // Arrange
+        var skillPath = Path.Combine(_fixturesPath, "unexpected-fields");
+        var validator = new Validation.SkillValidator();
+
+        // Act
+        var (skill, loadDiagnostics) = _loader.LoadSkill(skillPath);
+
+        // Assert - Skill loads successfully (loader doesn't validate field names)
+        Assert.NotNull(skill);
+        Assert.Empty(loadDiagnostics.Where(d => d.Severity == DiagnosticSeverity.Error));
+
+        // Validate the skill
+        var validationResult = validator.Validate(skill);
+
+        // Assert - Validator catches the unexpected fields
+        Assert.False(validationResult.IsValid);
+        Assert.Contains(validationResult.Errors, d => d.Code == "VAL011");
+        var unexpectedFieldError = validationResult.Errors.First(d => d.Code == "VAL011");
+        Assert.Contains("unexpected-field", unexpectedFieldError.Message);
+        Assert.Contains("another-bad-field", unexpectedFieldError.Message);
+    }
 }

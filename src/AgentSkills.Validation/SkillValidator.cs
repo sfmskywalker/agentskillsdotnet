@@ -15,6 +15,18 @@ public sealed partial class SkillValidator : ISkillValidator
     private const int DescriptionMaxLength = 1024;
     private const int CompatibilityMaxLength = 500;
 
+    // Allowed fields in YAML frontmatter per spec
+    private static readonly HashSet<string> AllowedFields =
+    [
+        "name",
+        "description",
+        "version",
+        "author",
+        "tags",
+        "allowed-tools",
+        "compatibility"
+    ];
+
     // Name validation pattern: Unicode lowercase letters, numbers, hyphens only
     // Cannot start/end with hyphen, no consecutive hyphens
     // \p{Ll} matches lowercase letters (e.g., a-z, а-я, etc.)
@@ -79,6 +91,9 @@ public sealed partial class SkillValidator : ISkillValidator
         {
             ValidateCompatibility(compatibility, skillPath, diagnostics);
         }
+
+        // Validate that there are no unexpected fields
+        ValidateNoUnexpectedFields(manifest.AdditionalFields, skillPath, diagnostics);
     }
 
     private void ValidateName(string name, string skillPath, List<SkillDiagnostic> diagnostics)
@@ -218,6 +233,32 @@ public sealed partial class SkillValidator : ISkillValidator
                 $"Directory name '{directoryName}' does not match skill name '{skillName}' (after NFKC normalization)",
                 skillPath,
                 "VAL010"));
+        }
+    }
+
+    private void ValidateNoUnexpectedFields(IReadOnlyDictionary<string, object?>? additionalFields, string skillPath, List<SkillDiagnostic> diagnostics)
+    {
+        if (additionalFields == null || additionalFields.Count == 0)
+        {
+            return;
+        }
+
+        // Check for fields that are not in the allowed set
+        // Note: "compatibility" is in AllowedFields but stored in AdditionalFields because
+        // it doesn't have a dedicated property on SkillManifest (per current domain model design)
+        var unexpectedFields = additionalFields.Keys
+            .Where(key => !AllowedFields.Contains(key))
+            .OrderBy(key => key)
+            .ToList();
+
+        if (unexpectedFields.Count > 0)
+        {
+            var fieldList = string.Join(", ", unexpectedFields.Select(f => $"'{f}'"));
+            diagnostics.Add(CreateDiagnostic(
+                DiagnosticSeverity.Error,
+                $"Unexpected field(s) in YAML frontmatter: {fieldList}. Allowed fields are: {string.Join(", ", AllowedFields.OrderBy(f => f).Select(f => $"'{f}'"))}",
+                skillPath,
+                "VAL011"));
         }
     }
 

@@ -25,10 +25,17 @@ Represents the parsed YAML frontmatter from a SKILL.md file. Contains the skill'
 - `string? Author` (optional) - The author of the skill
 - `IReadOnlyList<string> Tags` (optional) - Tags associated with the skill
 - `IReadOnlyList<string> AllowedTools` (optional) - List of allowed tools (advisory only)
-- `IReadOnlyDictionary<string, object?> AdditionalFields` (optional) - Additional fields for extensibility
+- `IReadOnlyDictionary<string, object?> AdditionalFields` (optional) - Additional fields not in the standard set
+
+**Allowed Fields:**
+Per the Agent Skills v1 specification, only the following fields are recognized:
+- **Required**: `name`, `description`
+- **Optional**: `version`, `author`, `tags`, `allowed-tools`, `compatibility`
+
+Fields not in this list will cause validation error `VAL011`.
 
 **Extensibility:**
-The `AdditionalFields` dictionary allows unknown fields from YAML frontmatter to be preserved, enabling forward compatibility and custom extensions.
+The `AdditionalFields` dictionary preserves fields from YAML frontmatter that are recognized by the spec but not directly mapped to properties (currently only `compatibility`). Unknown fields not in the spec will trigger validation errors.
 
 #### `SkillMetadata`
 Represents metadata about a skill that can be loaded without reading the full content. Enables fast skill listing and discovery.
@@ -176,11 +183,12 @@ The markdown body content goes here...
 **Parsing Behavior:**
 1. **Frontmatter Delimiters**: YAML frontmatter must be enclosed between `---` delimiters (start and end)
 2. **Required Fields**: `name` and `description` are required and must not be empty
-3. **Optional Fields**: All other fields are optional
-4. **Additional Fields**: Unknown YAML fields are preserved in `SkillManifest.AdditionalFields`
-5. **Markdown Body**: Everything after the closing `---` is preserved as instructions, with leading and trailing whitespace trimmed
-6. **Triple Dashes in Body**: `---` appearing in the markdown body are preserved as-is (not treated as delimiters)
-7. **Metadata-Only Load**: Uses streaming to read only the frontmatter section, never loading the full file content
+3. **Optional Fields**: `version`, `author`, `tags`, `allowed-tools`, `compatibility`
+4. **Additional Fields**: Fields recognized by spec but not mapped to properties are preserved in `SkillManifest.AdditionalFields` (currently only `compatibility`)
+5. **Unknown Fields**: Fields not in the spec will trigger validation error `VAL011`
+6. **Markdown Body**: Everything after the closing `---` is preserved as instructions, with leading and trailing whitespace trimmed
+7. **Triple Dashes in Body**: `---` appearing in the markdown body are preserved as-is (not treated as delimiters)
+8. **Metadata-Only Load**: Uses streaming to read only the frontmatter section, never loading the full file content
 
 **Edge Cases Handled:**
 - Missing SKILL.md file → `LOADER002` error
@@ -296,6 +304,7 @@ foreach (var meta in metadata)
 - `VAL008` - Field 'compatibility' exceeds maximum length (500 characters)
 - `VAL009` - Cannot determine directory name to validate against skill name (warning)
 - `VAL010` - Directory name does not match skill name
+- `VAL011` - Unexpected field(s) in YAML frontmatter (not in allowed fields list)
 
 **CI/CD Integration:**
 
