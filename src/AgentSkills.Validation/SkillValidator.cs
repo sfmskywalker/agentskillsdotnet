@@ -244,7 +244,8 @@ public sealed partial class SkillValidator : ISkillValidator
         }
 
         // Check for fields that are not in the allowed set
-        // Note: "compatibility" is in AllowedFields but stored in AdditionalFields for now
+        // Note: "compatibility" is in AllowedFields but stored in AdditionalFields because
+        // it doesn't have a dedicated property on SkillManifest (per current domain model design)
         var unexpectedFields = additionalFields.Keys
             .Where(key => !AllowedFields.Contains(key))
             .OrderBy(key => key)
