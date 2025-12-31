@@ -125,7 +125,8 @@ Interface for loading skills from storage.
 Default implementation of `ISkillLoader` that loads skills from the file system.
 
 **Features:**
-- Scans directories recursively for `SKILL.md` files
+- Scans directories recursively for `SKILL.md` or `skill.md` files
+- Prefers `SKILL.md` (uppercase) when both exist in the same directory
 - Parses YAML frontmatter and Markdown body
 - Supports metadata-only loading (fast path)
 - Validates required fields (name, description)
@@ -152,7 +153,7 @@ var (skill, diagnostics) = loader.LoadSkill("/path/to/skills/my-skill");
 
 **SKILL.md Format:**
 
-The `FileSystemSkillLoader` expects SKILL.md files to follow this format:
+The `FileSystemSkillLoader` expects SKILL.md (or skill.md) files to follow this format:
 ```markdown
 ---
 name: skill-name

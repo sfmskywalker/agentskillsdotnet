@@ -374,4 +374,92 @@ public class FileSystemSkillLoaderTests
         // Instructions should start with the markdown content
         Assert.StartsWith("#", skill.Instructions.TrimStart());
     }
+
+    [Fact]
+    public void LoadSkill_WithLowercaseSkillMd_ReturnsSkillAndNoDiagnostics()
+    {
+        // Arrange
+        var skillPath = Path.Combine(_fixturesPath, "lowercase-skill");
+
+        // Act
+        var (skill, diagnostics) = _loader.LoadSkill(skillPath);
+
+        // Assert
+        Assert.NotNull(skill);
+        Assert.Equal("lowercase-skill", skill.Manifest.Name);
+        Assert.Equal("A skill with lowercase skill.md filename for testing", skill.Manifest.Description);
+        Assert.Equal("1.0.0", skill.Manifest.Version);
+        Assert.Contains("Lowercase Skill", skill.Instructions);
+        Assert.Empty(diagnostics);
+    }
+
+    [Fact]
+    public void LoadSkill_WithBothFilenames_PrefersUppercase()
+    {
+        // Arrange
+        var skillPath = Path.Combine(_fixturesPath, "both-filenames-skill");
+
+        // Act
+        var (skill, diagnostics) = _loader.LoadSkill(skillPath);
+
+        // Assert
+        Assert.NotNull(skill);
+        // Should load from SKILL.md (uppercase), not skill.md (lowercase)
+        Assert.Equal("both-filenames-uppercase", skill.Manifest.Name);
+        Assert.Equal("This is from the UPPERCASE SKILL.md file", skill.Manifest.Description);
+        Assert.Contains("UPPERCASE", skill.Instructions);
+        Assert.DoesNotContain("lowercase version", skill.Instructions);
+        Assert.Empty(diagnostics);
+    }
+
+    [Fact]
+    public void LoadMetadata_WithLowercaseSkillMd_ReturnsMetadata()
+    {
+        // Act
+        var (metadata, _) = _loader.LoadMetadata(_fixturesPath);
+
+        // Assert
+        Assert.NotEmpty(metadata);
+        Assert.Contains(metadata, m => m.Name == "lowercase-skill");
+
+        var lowercaseMetadata = metadata.First(m => m.Name == "lowercase-skill");
+        Assert.Equal("A skill with lowercase skill.md filename for testing", lowercaseMetadata.Description);
+        Assert.Equal("1.0.0", lowercaseMetadata.Version);
+        Assert.Contains("test", lowercaseMetadata.Tags);
+        Assert.Contains("lowercase", lowercaseMetadata.Tags);
+    }
+
+    [Fact]
+    public void LoadSkillSet_WithLowercaseSkillMd_IncludesSkill()
+    {
+        // Act
+        var skillSet = _loader.LoadSkillSet(_fixturesPath);
+
+        // Assert
+        Assert.NotNull(skillSet);
+        Assert.NotEmpty(skillSet.Skills);
+        Assert.Contains(skillSet.Skills, s => s.Manifest.Name == "lowercase-skill");
+    }
+
+    [Fact]
+    public void LoadSkillSet_WithBothFilenames_IncludesOnlyUppercase()
+    {
+        // Act
+        var skillSet = _loader.LoadSkillSet(_fixturesPath);
+
+        // Assert
+        Assert.NotNull(skillSet);
+        Assert.NotEmpty(skillSet.Skills);
+
+        // Should include the skill with both filenames
+        Assert.Contains(skillSet.Skills, s => s.Manifest.Name == "both-filenames-uppercase");
+
+        // Should NOT include the lowercase version as a separate skill
+        Assert.DoesNotContain(skillSet.Skills, s => s.Manifest.Name == "both-filenames-lowercase");
+
+        // Should only have one skill from that directory
+        var bothFilenamesSkills = skillSet.Skills.Where(s =>
+            s.Manifest.Name.StartsWith("both-filenames")).ToList();
+        Assert.Single(bothFilenamesSkills);
+    }
 }

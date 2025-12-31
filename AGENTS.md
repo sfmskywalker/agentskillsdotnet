@@ -67,7 +67,23 @@ Use fixtures under `fixtures/skills/` (or create them if missing) instead of inv
 
 ---
 
-## 6) Keep the walking skeleton sample working
+## 6) Linting and formatting
+
+This project enforces code formatting using `dotnet format`.
+
+**Before committing:**
+- Always run `dotnet format --verify-no-changes --no-restore` to check for formatting issues
+- If issues are found, run `dotnet format --no-restore` to auto-fix them
+- The CI pipeline will fail if formatting issues are detected
+
+**Common formatting rules:**
+- No trailing whitespace
+- Consistent indentation (spaces, not tabs)
+- Proper line endings
+
+---
+
+## 7) Keep the walking skeleton sample working
 There should be a sample app (or soon will be) demonstrating:
 scan → metadata → validate → render list → activate skill → render instructions
 
@@ -75,7 +91,7 @@ Do not break this sample. If it breaks, fix it in the same PR.
 
 ---
 
-## 7) API and naming conventions
+## 8) API and naming conventions
 - Namespaces should be clean and domain-based (e.g., `AgentSkills.*`), not platform-based.
 - Avoid redundant prefixes in types (the namespace already provides context).
 - Prefer explicit, boring names:
@@ -87,7 +103,7 @@ Public API changes must be reflected in `docs/PUBLIC_API.md` (when present).
 
 ---
 
-## 8) Dependency rules
+## 9) Dependency rules
 Do not add new external dependencies lightly.
 If reminded by an issue to choose a library (e.g., YAML parsing), prefer:
 - Well-maintained, popular libraries
@@ -101,14 +117,14 @@ If you add a dependency:
 
 ---
 
-## 9) Error handling rules
+## 10) Error handling rules
 - Parsing errors should produce diagnostics, not throw, unless truly exceptional (I/O failure etc.).
 - Validation should aggregate diagnostics and return them.
 - Provide file/path context in diagnostics where possible.
 
 ---
 
-## 10) What to do when something is unclear
+## 11) What to do when something is unclear
 If the issue lacks context:
 1. Check `docs/PROJECT_BRIEF.md` and ADRs.
 2. Look for similar patterns in existing code/tests.
@@ -119,9 +135,10 @@ Avoid asking for clarification unless absolutely necessary—prefer minimal, rev
 
 ---
 
-## 11) Checklist before opening a PR
+## 12) Checklist before opening a PR
 - [ ] Issue acceptance criteria satisfied
 - [ ] Tests added/updated and passing
+- [ ] Code formatting verified with `dotnet format --verify-no-changes --no-restore`
 - [ ] No scope creep
 - [ ] Sample app still works
 - [ ] Docs updated if needed (brief/API/ADR)
@@ -129,7 +146,7 @@ Avoid asking for clarification unless absolutely necessary—prefer minimal, rev
 
 ---
 
-## 12) Quick map
+## 13) Quick map
 - Core code: `src/`
 - Tests: `tests/`
 - Samples: `samples/`
