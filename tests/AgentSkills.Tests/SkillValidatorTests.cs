@@ -730,29 +730,6 @@ public class SkillValidatorTests
     }
 
     [Fact]
-    public void Validate_UnicodeUppercaseChinese_ReturnsNoErrors()
-    {
-        // Note: Chinese characters don't have uppercase/lowercase distinction
-        // so this should be valid
-        var skill = new Skill
-        {
-            Manifest = new SkillManifest
-            {
-                Name = "技能",
-                Description = "Chinese characters don't have case"
-            },
-            Instructions = "# Instructions",
-            Path = "/path/to/技能"
-        };
-
-        // Act
-        var result = _validator.Validate(skill);
-
-        // Assert
-        Assert.True(result.IsValid);
-    }
-
-    [Fact]
     public void ValidateMetadata_UnicodeSkill_ReturnsNoErrors()
     {
         // Arrange

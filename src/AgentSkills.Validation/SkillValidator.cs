@@ -19,7 +19,7 @@ public sealed partial class SkillValidator : ISkillValidator
     // \p{Ll} matches lowercase letters (e.g., a-z, а-я, etc.)
     // \p{Lo} matches other letters without case (e.g., Chinese, Arabic, Hebrew, etc.)
     // \p{Nd} matches any decimal digit in any Unicode script
-    [GeneratedRegex(@"^[\p{Ll}\p{Lo}\p{Nd}]+([-][\p{Ll}\p{Lo}\p{Nd}]+)*$")]
+    [GeneratedRegex(@"^[\p{Ll}\p{Lo}\p{Nd}]+(-[\p{Ll}\p{Lo}\p{Nd}]+)*$")]
     private static partial Regex NamePattern();
 
     /// <inheritdoc/>
