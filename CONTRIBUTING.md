@@ -106,6 +106,21 @@ public class AgentSkillItem { }
 
 ## Testing Guidelines
 
+AgentSkills.NET uses a comprehensive testing strategy. See [Testing Guide](docs/TESTING_GUIDE.md) for complete details.
+
+### Quick Reference
+
+```bash
+# Run all tests
+dotnet test
+
+# Run specific test suite
+dotnet test --filter "FullyQualifiedName~PerformanceTests"
+
+# Update golden files (when rendering changes)
+UPDATE_GOLDEN_FILES=1 dotnet test --filter "FullyQualifiedName~GoldenFileTests"
+```
+
 ### Test Organization
 - Place tests in corresponding test projects under `tests/`
 - Mirror the source code structure in test projects
@@ -130,7 +145,11 @@ public void MethodName_Scenario_ExpectedResult()
 ### Test Types
 - **Unit Tests**: Test individual components in isolation
 - **Integration Tests**: Test the pipeline (scan → parse → validate → render)
-- **Golden Tests**: For prompt renderer output (snapshot testing)
+- **Golden File Tests**: Ensure rendering output stability (snapshot testing)
+- **Performance Tests**: Catch major performance regressions (sanity checks)
+- **Regression Tests**: Document and prevent previously fixed bugs
+
+For detailed information on testing strategy, golden files, performance testing, and best practices, see [docs/TESTING_GUIDE.md](docs/TESTING_GUIDE.md).
 
 ## Documentation
 
