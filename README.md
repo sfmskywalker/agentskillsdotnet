@@ -86,6 +86,7 @@ dotnet run --project samples/AgentSkills.Sample.AgentFramework/AgentSkills.Sampl
 - [📚 Public API Reference](docs/PUBLIC_API.md) - Complete API documentation
 - [🧪 Testing Guide](docs/TESTING_GUIDE.md) - Testing strategy and best practices
 - [🔧 Troubleshooting Guide](docs/TROUBLESHOOTING.md) - Common issues and solutions
+- [🔍 Reference Comparison](docs/COMPARISON_SUMMARY.md) - Comparison with Python reference implementation
 
 ### Contributing
 - [🤝 Contributing Guide](CONTRIBUTING.md) - How to contribute
