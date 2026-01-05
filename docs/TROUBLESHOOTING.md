@@ -95,11 +95,14 @@ foreach (var d in diagnostics)
 **Problem:** Directory exists but SKILL.md is missing
 
 **Solutions:**
-1. Verify SKILL.md exists in each skill directory:
+1. Verify SKILL.md (or skill.md) exists in each skill directory:
    ```bash
-   find ./skills -name "SKILL.md"
+   find ./skills -name "SKILL.md" -o -name "skill.md"
    ```
-2. Check filename case (must be exactly `SKILL.md`)
+2. Check filename case (must be either `SKILL.md` or `skill.md`)
+   - `SKILL.md` (uppercase) is preferred
+   - `skill.md` (lowercase) is also accepted as fallback
+   - If both exist, `SKILL.md` takes precedence
 3. Ensure file is not hidden or has correct extension
 
 ### Skill loads but returns null
@@ -194,7 +197,7 @@ description: My description
 ---
 ```
 
-**Valid pattern:** lowercase letters, numbers, and single hyphens only
+**Valid pattern:** Unicode lowercase letters (any script), numbers, and single hyphens only. Supports Chinese, Russian, Arabic, and other Unicode scripts. For scripts with case distinction (like Latin or Cyrillic), only lowercase letters are allowed.
 
 ### VAL004: Required field 'description' is missing or empty
 

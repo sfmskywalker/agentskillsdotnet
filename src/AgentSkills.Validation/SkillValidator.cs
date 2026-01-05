@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace AgentSkills.Validation;
@@ -14,9 +15,24 @@ public sealed partial class SkillValidator : ISkillValidator
     private const int DescriptionMaxLength = 1024;
     private const int CompatibilityMaxLength = 500;
 
-    // Name validation pattern: lowercase letters, numbers, hyphens only
+    // Allowed fields in YAML frontmatter per spec
+    private static readonly HashSet<string> AllowedFields =
+    [
+        "name",
+        "description",
+        "version",
+        "author",
+        "tags",
+        "allowed-tools",
+        "compatibility"
+    ];
+
+    // Name validation pattern: Unicode lowercase letters, numbers, hyphens only
     // Cannot start/end with hyphen, no consecutive hyphens
-    [GeneratedRegex(@"^[a-z0-9]+(-[a-z0-9]+)*$")]
+    // \p{Ll} matches lowercase letters (e.g., a-z, а-я, etc.)
+    // \p{Lo} matches other letters without case (e.g., Chinese, Arabic, Hebrew, etc.)
+    // \p{Nd} matches any decimal digit in any Unicode script
+    [GeneratedRegex(@"^[\p{Ll}\p{Lo}\p{Nd}]+(-[\p{Ll}\p{Lo}\p{Nd}]+)*$")]
     private static partial Regex NamePattern();
 
     /// <inheritdoc/>
@@ -75,6 +91,9 @@ public sealed partial class SkillValidator : ISkillValidator
         {
             ValidateCompatibility(compatibility, skillPath, diagnostics);
         }
+
+        // Validate that there are no unexpected fields
+        ValidateNoUnexpectedFields(manifest.AdditionalFields, skillPath, diagnostics);
     }
 
     private void ValidateName(string name, string skillPath, List<SkillDiagnostic> diagnostics)
@@ -90,35 +109,40 @@ public sealed partial class SkillValidator : ISkillValidator
             return;
         }
 
+        // Apply NFKC Unicode normalization to ensure composed and decomposed characters are treated equivalently
+        var normalizedName = name.Normalize(NormalizationForm.FormKC);
+
         // Check length constraints
-        if (name.Length < NameMinLength || name.Length > NameMaxLength)
+        if (normalizedName.Length < NameMinLength || normalizedName.Length > NameMaxLength)
         {
             diagnostics.Add(CreateDiagnostic(
                 DiagnosticSeverity.Error,
-                $"Field 'name' must be {NameMinLength}-{NameMaxLength} characters (found: {name.Length})",
+                $"Field 'name' must be {NameMinLength}-{NameMaxLength} characters (found: {normalizedName.Length})",
                 skillPath,
                 "VAL002"));
         }
 
-        // Check pattern: lowercase, numbers, hyphens only, no leading/trailing/consecutive hyphens
-        if (!NamePattern().IsMatch(name))
+        // Check pattern: lowercase Unicode letters, numbers, hyphens only, no leading/trailing/consecutive hyphens
+        if (!NamePattern().IsMatch(normalizedName))
         {
             List<string> reasons = [];
 
-            if (name.Any(char.IsUpper))
+            // Check for uppercase letters (including Unicode uppercase)
+            if (normalizedName.Any(c => char.IsLetter(c) && char.IsUpper(c)))
                 reasons.Add("contains uppercase letters");
-            if (name.StartsWith('-') || name.EndsWith('-'))
+            if (normalizedName.StartsWith('-') || normalizedName.EndsWith('-'))
                 reasons.Add("starts or ends with hyphen");
-            if (name.Contains("--"))
+            if (normalizedName.Contains("--"))
                 reasons.Add("contains consecutive hyphens");
-            if (name.Any(c => !char.IsLetterOrDigit(c) && c != '-'))
+            // Check for invalid characters (anything that's not a letter, digit, or hyphen)
+            if (normalizedName.Any(c => !char.IsLetterOrDigit(c) && c != '-'))
                 reasons.Add("contains invalid characters");
 
             var reasonText = reasons.Count > 0 ? $" ({string.Join(", ", reasons)})" : "";
 
             diagnostics.Add(CreateDiagnostic(
                 DiagnosticSeverity.Error,
-                $"Field 'name' must contain only lowercase letters, numbers, and hyphens; cannot start/end with hyphen or have consecutive hyphens{reasonText}",
+                $"Field 'name' must contain only lowercase letters (any Unicode script), numbers, and hyphens; cannot start/end with hyphen or have consecutive hyphens{reasonText}",
                 skillPath,
                 "VAL003"));
         }
@@ -198,13 +222,43 @@ public sealed partial class SkillValidator : ISkillValidator
             return;
         }
 
-        if (!string.Equals(directoryName, skillName, StringComparison.Ordinal))
+        // Apply NFKC Unicode normalization to both directory and skill names for consistent comparison
+        var normalizedDirectoryName = directoryName.Normalize(NormalizationForm.FormKC);
+        var normalizedSkillName = skillName.Normalize(NormalizationForm.FormKC);
+
+        if (!string.Equals(normalizedDirectoryName, normalizedSkillName, StringComparison.Ordinal))
         {
             diagnostics.Add(CreateDiagnostic(
                 DiagnosticSeverity.Error,
-                $"Directory name '{directoryName}' does not match skill name '{skillName}'",
+                $"Directory name '{directoryName}' does not match skill name '{skillName}' (after NFKC normalization)",
                 skillPath,
                 "VAL010"));
+        }
+    }
+
+    private void ValidateNoUnexpectedFields(IReadOnlyDictionary<string, object?>? additionalFields, string skillPath, List<SkillDiagnostic> diagnostics)
+    {
+        if (additionalFields == null || additionalFields.Count == 0)
+        {
+            return;
+        }
+
+        // Check for fields that are not in the allowed set
+        // Note: "compatibility" is in AllowedFields but stored in AdditionalFields because
+        // it doesn't have a dedicated property on SkillManifest (per current domain model design)
+        var unexpectedFields = additionalFields.Keys
+            .Where(key => !AllowedFields.Contains(key))
+            .OrderBy(key => key)
+            .ToList();
+
+        if (unexpectedFields.Count > 0)
+        {
+            var fieldList = string.Join(", ", unexpectedFields.Select(f => $"'{f}'"));
+            diagnostics.Add(CreateDiagnostic(
+                DiagnosticSeverity.Error,
+                $"Unexpected field(s) in YAML frontmatter: {fieldList}. Allowed fields are: {string.Join(", ", AllowedFields.OrderBy(f => f).Select(f => $"'{f}'"))}",
+                skillPath,
+                "VAL011"));
         }
     }
 

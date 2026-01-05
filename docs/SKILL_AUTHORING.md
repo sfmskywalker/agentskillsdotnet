@@ -14,17 +14,20 @@ This guide teaches you how to write excellent skills for AgentSkills.NET.
 
 ## Skill Structure
 
-A skill is a directory containing a `SKILL.md` file and optional resource folders.
+A skill is a directory containing a `SKILL.md` file (or `skill.md` as fallback) and optional resource folders.
 
 ### Basic Structure
 
 ```
 my-skill/
-├── SKILL.md           # Required: skill definition
+├── SKILL.md           # Required: skill definition (SKILL.md preferred, skill.md also accepted)
 ├── scripts/           # Optional: script files
 ├── references/        # Optional: reference docs
 └── assets/           # Optional: supporting files
 ```
+
+> **Note:** Both `SKILL.md` (uppercase) and `skill.md` (lowercase) are supported. 
+> If both files exist in the same directory, `SKILL.md` takes precedence.
 
 ### SKILL.md Format
 
@@ -76,9 +79,15 @@ Any important notes or tips...
 - `analyze-code`
 - `generate-report`
 - `search-documents`
+- `技能` (Chinese)
+- `навык` (Russian)
+- `مهارة` (Arabic)
+- `技能-测试` (Chinese with hyphens)
+- `skill-技能` (mixed scripts)
 
 ❌ **Bad Names**
 - `SendEmail` (uppercase not allowed)
+- `НАВЫК` (uppercase Russian not allowed)
 - `send--email` (consecutive hyphens not allowed)
 - `-send-email` (can't start with hyphen)
 - `send_email` (use hyphens, not underscores)
@@ -133,7 +142,10 @@ Send email.
 - **Type**: string
 - **Required**: Yes
 - **Length**: 1-64 characters
-- **Pattern**: Lowercase letters (a-z), numbers (0-9), hyphens only
+- **Pattern**: Unicode lowercase letters, numbers (0-9), hyphens only
+  - Supports Unicode letters from any script (Chinese, Russian, Arabic, etc.)
+  - Letters without case distinction (e.g., Chinese, Arabic) are allowed
+  - Only lowercase letters are allowed for scripts that have case (e.g., Latin, Cyrillic)
 - **Rules**: 
   - Cannot start or end with hyphen
   - Cannot contain consecutive hyphens (`--`)
@@ -178,20 +190,14 @@ Send email.
 - **Example**: `[filesystem, network, calculator]`
 - **Security Note**: This is informational - hosts decide what's actually allowed
 
-### Custom Fields
+### Allowed Fields Summary
 
-You can add custom fields for your own use:
+The following fields are recognized by the Agent Skills v1 specification:
 
-```yaml
----
-name: my-skill
-description: Example skill
-custom-field: custom value
-x-my-metadata: anything here
----
-```
+- **Required**: `name`, `description`
+- **Optional**: `version`, `author`, `tags`, `allowed-tools`, `compatibility`
 
-Custom fields are preserved in `SkillManifest.AdditionalFields` dictionary.
+**Important**: Skills with unexpected fields (fields not in the list above) will fail validation with error code `VAL011`. This ensures consistency and helps catch typos in field names.
 
 ## Validation Rules
 
@@ -222,6 +228,7 @@ AgentSkills.NET validates skills against the [Agent Skills v1 specification](htt
 |------|-----------|----------|
 | Version field is empty | VAL007 | Warning |
 | Compatibility exceeds 500 chars | VAL008 | Error |
+| Unexpected field(s) in frontmatter | VAL011 | Error |
 
 ### Testing Your Skills
 
