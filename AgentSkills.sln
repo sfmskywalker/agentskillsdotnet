@@ -37,6 +37,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgentSkills.Sample.AgentFra
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgentSkills.Adapters.Microsoft.AgentFramework.Tests", "tests\AgentSkills.Adapters.Microsoft.AgentFramework.Tests\AgentSkills.Adapters.Microsoft.AgentFramework.Tests.csproj", "{251B90F0-49E2-4132-BA0A-8AA8D5C77DDB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgentSkills.MicrosoftAgentFramework.Sample", "samples\AgentSkills.MicrosoftAgentFramework.Sample\AgentSkills.MicrosoftAgentFramework.Sample.csproj", "{50EFA2C1-1533-4991-BDE2-F9013F397777}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -155,6 +157,18 @@ Global
 		{251B90F0-49E2-4132-BA0A-8AA8D5C77DDB}.Release|x64.Build.0 = Release|Any CPU
 		{251B90F0-49E2-4132-BA0A-8AA8D5C77DDB}.Release|x86.ActiveCfg = Release|Any CPU
 		{251B90F0-49E2-4132-BA0A-8AA8D5C77DDB}.Release|x86.Build.0 = Release|Any CPU
+		{50EFA2C1-1533-4991-BDE2-F9013F397777}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{50EFA2C1-1533-4991-BDE2-F9013F397777}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{50EFA2C1-1533-4991-BDE2-F9013F397777}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{50EFA2C1-1533-4991-BDE2-F9013F397777}.Debug|x64.Build.0 = Debug|Any CPU
+		{50EFA2C1-1533-4991-BDE2-F9013F397777}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{50EFA2C1-1533-4991-BDE2-F9013F397777}.Debug|x86.Build.0 = Debug|Any CPU
+		{50EFA2C1-1533-4991-BDE2-F9013F397777}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{50EFA2C1-1533-4991-BDE2-F9013F397777}.Release|Any CPU.Build.0 = Release|Any CPU
+		{50EFA2C1-1533-4991-BDE2-F9013F397777}.Release|x64.ActiveCfg = Release|Any CPU
+		{50EFA2C1-1533-4991-BDE2-F9013F397777}.Release|x64.Build.0 = Release|Any CPU
+		{50EFA2C1-1533-4991-BDE2-F9013F397777}.Release|x86.ActiveCfg = Release|Any CPU
+		{50EFA2C1-1533-4991-BDE2-F9013F397777}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -169,5 +183,6 @@ Global
 		{63F44A53-B07A-4713-A463-E35591744263} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{5B74E90C-51A3-4936-A6DE-88D9F1E310BE} = {5D20AA90-6969-D8BD-9DCD-8634F4692FDA}
 		{251B90F0-49E2-4132-BA0A-8AA8D5C77DDB} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{50EFA2C1-1533-4991-BDE2-F9013F397777} = {5D20AA90-6969-D8BD-9DCD-8634F4692FDA}
 	EndGlobalSection
 EndGlobal
