@@ -953,4 +953,119 @@ public class SkillValidatorTests
         Assert.Empty(composedResult.Errors);
         Assert.Empty(decomposedResult.Errors);
     }
+
+    [Fact]
+    public void Validate_UnexpectedFields_ReturnsError()
+    {
+        // Arrange
+        var skill = new Skill
+        {
+            Manifest = new SkillManifest
+            {
+                Name = "test-skill",
+                Description = "A skill with unexpected fields",
+                AdditionalFields = new Dictionary<string, object?>
+                {
+                    { "unexpected-field", "value" },
+                    { "another-bad-field", "another value" }
+                }
+            },
+            Instructions = "# Instructions",
+            Path = "/path/to/test-skill"
+        };
+
+        // Act
+        var result = _validator.Validate(skill);
+
+        // Assert
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, d => d.Code == "VAL011");
+        var error = result.Errors.First(d => d.Code == "VAL011");
+        Assert.Contains("unexpected-field", error.Message);
+        Assert.Contains("another-bad-field", error.Message);
+    }
+
+    [Fact]
+    public void Validate_OnlyAllowedFields_ReturnsNoErrors()
+    {
+        // Arrange
+        var skill = new Skill
+        {
+            Manifest = new SkillManifest
+            {
+                Name = "test-skill",
+                Description = "A skill with only allowed fields",
+                Version = "1.0.0",
+                Author = "Test Author",
+                Tags = ["tag1", "tag2"],
+                AllowedTools = ["tool1", "tool2"],
+                AdditionalFields = new Dictionary<string, object?>
+                {
+                    { "compatibility", "Some compatibility info" }
+                }
+            },
+            Instructions = "# Instructions",
+            Path = "/path/to/test-skill"
+        };
+
+        // Act
+        var result = _validator.Validate(skill);
+
+        // Assert
+        Assert.True(result.IsValid, $"Skill with only allowed fields should be valid. Errors: {string.Join(", ", result.Errors.Select(e => e.Message))}");
+        Assert.Empty(result.Errors);
+    }
+
+    [Fact]
+    public void Validate_NoAdditionalFields_ReturnsNoErrors()
+    {
+        // Arrange
+        var skill = new Skill
+        {
+            Manifest = new SkillManifest
+            {
+                Name = "test-skill",
+                Description = "A skill with no additional fields",
+                AdditionalFields = new Dictionary<string, object?>()
+            },
+            Instructions = "# Instructions",
+            Path = "/path/to/test-skill"
+        };
+
+        // Act
+        var result = _validator.Validate(skill);
+
+        // Assert
+        Assert.True(result.IsValid);
+        Assert.Empty(result.Errors);
+    }
+
+    [Fact]
+    public void Validate_SingleUnexpectedField_ErrorMessageListsField()
+    {
+        // Arrange
+        var skill = new Skill
+        {
+            Manifest = new SkillManifest
+            {
+                Name = "test-skill",
+                Description = "A skill with one unexpected field",
+                AdditionalFields = new Dictionary<string, object?>
+                {
+                    { "bad-field", "value" }
+                }
+            },
+            Instructions = "# Instructions",
+            Path = "/path/to/test-skill"
+        };
+
+        // Act
+        var result = _validator.Validate(skill);
+
+        // Assert
+        Assert.False(result.IsValid);
+        var error = result.Errors.First(d => d.Code == "VAL011");
+        Assert.Contains("'bad-field'", error.Message);
+        Assert.Contains("Allowed fields are:", error.Message);
+    }
 }
