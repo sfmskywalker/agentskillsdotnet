@@ -56,8 +56,6 @@ This sample demonstrates the **complete integration pattern** for using AgentSki
 > - Tool registry contains expected tool names matching skill requirements
 > - Tool implementations return expected results
 > - Skill-to-tool mappings are correct
-6. **Tool Execution**: Demonstrates actual tool calls returning results
-7. **No External Dependencies**: Runs with mock client (no API keys required for demo)
 
 ## Project Structure
 
