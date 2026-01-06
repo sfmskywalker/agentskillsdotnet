@@ -68,8 +68,8 @@ var calculatorTools = new[]
         ([Description("Dividend")] double a, [Description("Divisor")] double b) =>
         {
             if (Math.Abs(b) < 0.0001)
-                return "Error: Division by zero is undefined";
-            return (a / b).ToString();
+                return double.NaN;
+            return a / b;
         },
         "divide",
         "Divide the first number by the second")
@@ -137,16 +137,20 @@ Console.WriteLine("└───────────────────�
 Console.WriteLine();
 
 // ====================================================================
-// STEP 4: Create Mock Chat Client (No API Key Required!)
+// STEP 4: Note on Agent Integration (No API Key Required for Demo!)
 // ====================================================================
-Console.WriteLine("🤖 Step 4: Creating agent (using mock/test mode - no API key needed)...");
+Console.WriteLine("🤖 Step 4: About agent integration...");
 Console.WriteLine("─────────────────────────────────────────────────────────────────");
 
-// For this demo, we'll use a test chat client that simulates responses
-// This allows the sample to run without requiring an API key
-var chatClient = new MockChatClient();
+// Note: This sample demonstrates the pattern without requiring an actual AI model.
+// In a real application, you would:
+// 1. Create an IChatClient (e.g., OpenAIChatClient, AzureOpenAIChatClient)
+// 2. Pass baseInstructions as system message
+// 3. Register allTools with ChatOptions
+// 4. The agent would then call tools based on skill guidance
 
-Console.WriteLine("✓ Using MockChatClient for demonstration (no external API required)");
+Console.WriteLine("✓ This demo shows the integration pattern (no API key needed)");
+Console.WriteLine("  For actual AI integration, see README.md 'Option 2: Use with Real AI Model'");
 Console.WriteLine();
 
 // ====================================================================
@@ -253,45 +257,10 @@ Console.WriteLine();
 Console.WriteLine("Next Steps:");
 Console.WriteLine("─────────────────────────────────────────────────────────────────");
 Console.WriteLine("• To use with a real AI model:");
-Console.WriteLine("  - Replace MockChatClient with a real IChatClient");
-Console.WriteLine("  - Use Microsoft.Extensions.AI.OpenAI or Azure OpenAI");
-Console.WriteLine("  - Set up API keys via configuration/environment variables");
+Console.WriteLine("  - Create an IChatClient (OpenAI, Azure OpenAI, etc.)");
+Console.WriteLine("  - Pass baseInstructions as system message");
+Console.WriteLine("  - Register allTools with ChatOptions");
+Console.WriteLine("  - See README.md for detailed integration instructions");
 Console.WriteLine("• Add more skills and tools as needed for your use case");
 Console.WriteLine("• Customize the prompt builder for your agent's personality");
 Console.WriteLine();
-
-// ====================================================================
-// Mock Chat Client for Demo Purposes
-// ====================================================================
-/// <summary>
-/// A mock chat client for demonstration purposes.
-/// In a real application, replace this with OpenAIChatClient or AzureOpenAIChatClient.
-/// </summary>
-class MockChatClient : IChatClient
-{
-    public ChatClientMetadata Metadata => new("mock-client", new Uri("https://example.com"));
-
-    public Task<ChatCompletion> CompleteAsync(
-        IList<ChatMessage> chatMessages,
-        ChatOptions? options = null,
-        CancellationToken cancellationToken = default)
-    {
-        // Simulated response
-        var response = new ChatCompletion(
-            new ChatMessage(ChatRole.Assistant, "This is a mock response. In a real scenario, the AI agent would process the request and call appropriate tools."));
-
-        return Task.FromResult(response);
-    }
-
-    public IAsyncEnumerable<StreamingChatCompletionUpdate> CompleteStreamingAsync(
-        IList<ChatMessage> chatMessages,
-        ChatOptions? options = null,
-        CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException("Streaming not implemented in mock client");
-    }
-
-    public object? GetService(Type serviceType, object? serviceKey = null) => null;
-
-    public void Dispose() { }
-}

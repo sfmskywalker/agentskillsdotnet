@@ -49,6 +49,14 @@ This sample demonstrates the **complete integration pattern** for using AgentSki
 4. **Tool Registration**: C# functions registered as tools via `AIFunctionFactory`
 5. **Skill-to-Tool Mapping**: Skills reference tools by name; host provides implementations
 6. **Tool Execution**: Demonstrates actual tool calls returning results
+7. **No External Dependencies**: Runs as a demonstration without requiring API keys
+
+> **Note on Testing**: This is an educational sample project designed to demonstrate integration patterns. Unit tests are not included as the sample focuses on showcasing the integration flow rather than providing production-ready code. The core AgentSkills.NET libraries have comprehensive test coverage (184+ tests). For production applications, you should add tests that verify:
+> - Skills are discovered from your custom skill directories
+> - Tool registry contains expected tool names matching skill requirements
+> - Tool implementations return expected results
+> - Skill-to-tool mappings are correct
+6. **Tool Execution**: Demonstrates actual tool calls returning results
 7. **No External Dependencies**: Runs with mock client (no API keys required for demo)
 
 ## Project Structure
@@ -116,10 +124,16 @@ To integrate with a real AI model (OpenAI, Azure OpenAI, etc.):
    ```
 
 3. **Modify Program.cs**:
-   Replace the `MockChatClient` section with:
+   Replace the integration note section with:
    ```csharp
    using OpenAI;
    using Microsoft.Extensions.AI;
+   using Microsoft.Extensions.Configuration;
+
+   // Build configuration from appsettings.json
+   var configuration = new ConfigurationBuilder()
+       .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+       .Build();
 
    // Load API key from configuration
    var apiKey = configuration["OpenAI:ApiKey"];
@@ -152,7 +166,9 @@ To integrate with a real AI model (OpenAI, Azure OpenAI, etc.):
 
 ```csharp
 var loader = new FileSystemSkillLoader();
-var skillSet = loader.LoadSkillSet("./skills");
+// Path construction ensures skills are found relative to executable
+var skillsPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "skills");
+var skillSet = loader.LoadSkillSet(skillsPath);
 var validator = new SkillValidator();
 var validSkills = skillSet.Skills
     .Where(s => validator.Validate(s).IsValid)
@@ -168,7 +184,22 @@ var addTool = AIFunctionFactory.Create(
     "Add two numbers together");
 
 var weatherTool = AIFunctionFactory.Create(
-    (string location) => GetWeather(location),
+    (string location) =>
+    {
+        // Simulated weather data - in real app would call weather API
+        var weatherData = new Dictionary<string, string>
+        {
+            ["san francisco"] = "65°F (18°C), partly cloudy with light fog in the morning",
+            ["new york"] = "72°F (22°C), sunny with clear skies"
+        };
+        
+        var key = location.ToLowerInvariant();
+        if (weatherData.TryGetValue(key, out var weather))
+        {
+            return $"Current weather in {location}: {weather}";
+        }
+        return $"Weather data not available for {location}";
+    },
     "get_weather",
     "Get current weather for a location");
 ```
