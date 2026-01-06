@@ -58,11 +58,14 @@ var detailsPrompt = renderer.RenderSkillDetails(skill);
 ### Try the Samples
 
 ```bash
-# Run the walking skeleton sample
+# Run the walking skeleton sample (basics)
 dotnet run --project samples/AgentSkills.Sample/AgentSkills.Sample.csproj
 
-# Run the Microsoft Agent Framework integration sample
+# Run the Microsoft Agent Framework integration demo (explains concepts)
 dotnet run --project samples/AgentSkills.Sample.AgentFramework/AgentSkills.Sample.AgentFramework.csproj
+
+# Run the full Microsoft Agent Framework sample (working tools + function calling)
+dotnet run --project samples/AgentSkills.MicrosoftAgentFramework.Sample/AgentSkills.MicrosoftAgentFramework.Sample.csproj
 ```
 
 ## Project Status

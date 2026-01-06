@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.AI" Version="9.1.0-preview.1.25064.3" />
+    <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="9.1.0-preview.1.25064.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\AgentSkills\AgentSkills.csproj" />
+    <ProjectReference Include="..\..\src\AgentSkills.Loader\AgentSkills.Loader.csproj" />
+    <ProjectReference Include="..\..\src\AgentSkills.Validation\AgentSkills.Validation.csproj" />
+    <ProjectReference Include="..\..\src\AgentSkills.Prompts\AgentSkills.Prompts.csproj" />
+    <ProjectReference Include="..\..\src\AgentSkills.Adapters.Microsoft.AgentFramework\AgentSkills.Adapters.Microsoft.AgentFramework.csproj" />
+  </ItemGroup>
+
+</Project>
